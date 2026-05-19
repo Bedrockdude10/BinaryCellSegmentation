@@ -1,0 +1,5 @@
+# configs/ablations/dice_loss.yaml
+experiment:
+  name: unet_vgg_dice
+
+loss: dice

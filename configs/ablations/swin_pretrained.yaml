@@ -1,0 +1,12 @@
+# configs/ablations/swin_pretrained.yaml
+experiment:
+  name: unet_swin_pretrained
+
+model:
+  architecture: swin_pretrained
+
+optimizer:
+  lr: 0.0001
+
+scheduler:
+  type: cosine

@@ -1,0 +1,18 @@
+experiment:
+  name: "unet_vgg_monuseg"
+
+data:
+  dataset: "monuseg"
+  data_root: "data"
+  train_split: "train"
+  val_split: "train"   # val is carved from train images via val_fraction below
+  val_fraction: 0.2
+  test_split: "test"
+  batch_size: 8
+  num_workers: 4
+
+training:
+  epochs: 100
+  early_stopping:
+    patience: 20
+    metric: "dice"

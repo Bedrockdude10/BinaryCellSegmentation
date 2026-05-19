@@ -1,0 +1,47 @@
+data:
+  batch_size: 8
+  num_workers: 4
+  test_split: fold3
+  train_split: fold1
+  val_split: fold2
+experiment:
+  device: auto
+  name: unet_vgg_dice
+  output_dir: outputs
+  seed: 42
+loss: dice
+model:
+  architecture: vgg
+  params:
+    in_channels: 3
+    out_channels: 1
+optimizer:
+  lr: 0.01
+  momentum: 0.9
+  type: sgd
+  weight_decay: 0.0001
+preprocessing:
+  augmentation:
+    horizontal_flip: true
+    rotation_degrees: 90
+    vertical_flip: true
+  normalize:
+    mean:
+    - 0.485
+    - 0.456
+    - 0.406
+    std:
+    - 0.229
+    - 0.224
+    - 0.225
+scheduler:
+  gamma: 0.1
+  step_size: 30
+  type: step
+training:
+  checkpoint_interval: 10
+  early_stopping:
+    metric: dice
+    patience: 15
+  epochs: 100
+  log_interval: 10

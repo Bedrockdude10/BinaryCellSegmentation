@@ -1,0 +1,6 @@
+# configs/ablations/swin.yaml
+experiment:
+  name: unet_swin
+
+model:
+  architecture: swin

@@ -1,0 +1,6 @@
+# configs/ablations/resnet.yaml
+experiment:
+  name: unet_resnet
+
+model:
+  architecture: resnet

@@ -1,0 +1,16 @@
+[project]
+name = "cs7150-final-project"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "torch",
+    "torchvision",
+    "numpy",
+    "matplotlib",
+    "datasets",
+    "pyyaml",
+    "tensorboard",
+]
+
+[project.optional-dependencies]
+dev = ["jupyter", "ipykernel"]

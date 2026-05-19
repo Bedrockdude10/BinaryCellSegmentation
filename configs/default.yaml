@@ -1,0 +1,50 @@
+# configs/default.yaml
+
+experiment:
+  name: "unet_vgg"
+  seed: 42
+  device: "auto"
+  output_dir: "outputs"
+
+data:
+  train_split: "fold1"
+  val_split: "fold2"
+  test_split: "fold3"
+  batch_size: 8
+  num_workers: 4
+
+preprocessing:
+  normalize:
+    mean: [0.485, 0.456, 0.406]
+    std: [0.229, 0.224, 0.225]
+  augmentation:
+    horizontal_flip: true
+    vertical_flip: true
+    rotation_degrees: 90
+
+model:
+  architecture: "vgg"
+  params:
+    in_channels: 3
+    out_channels: 1
+
+loss: "bce_logits"
+
+optimizer:
+  type: "sgd"
+  lr: 0.01
+  momentum: 0.9
+  weight_decay: 0.0001
+
+scheduler:
+  type: "step"
+  step_size: 30
+  gamma: 0.1
+
+training:
+  epochs: 100
+  log_interval: 10
+  checkpoint_interval: 10
+  early_stopping:
+    patience: 15
+    metric: "dice"

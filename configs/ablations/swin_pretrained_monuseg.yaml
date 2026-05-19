@@ -1,0 +1,30 @@
+experiment:
+  name: "unet_swin_pretrained_monuseg"
+
+data:
+  dataset: "monuseg"
+  data_root: "data"
+  train_split: "train"
+  val_split: "train"
+  val_fraction: 0.2
+  test_split: "test"
+  batch_size: 8
+  num_workers: 4
+
+model:
+  architecture: swin_pretrained
+
+optimizer:
+  type: "sgd"
+  lr: 0.0001
+  momentum: 0.9
+  weight_decay: 0.0001
+
+scheduler:
+  type: cosine
+
+training:
+  epochs: 150
+  early_stopping:
+    patience: 20
+    metric: "dice"
