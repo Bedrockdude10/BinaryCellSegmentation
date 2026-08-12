@@ -1,0 +1,147 @@
+# configs/sweep.yaml
+#
+# The multi-seed re-run of Tables 1 and 2 for the MICCAI 2026 MSB EMERGE
+# camera-ready. Every entry below reproduces one of the reviewed single-seed
+# configurations exactly — each (base, overrides) chain was verified to rebuild
+# the config.yaml saved alongside the original published run, field for field.
+# Only `train_seed` varies.
+#
+#   7 configurations x 5 train_seeds = 35 runs
+#
+# Table 1 rows that are NOT runs here: the Otsu baseline has no learnable
+# parameters and no RNG (its single number is deterministic). Table 2's MedT row
+# is a published figure from another paper.
+
+# ── Seeds ────────────────────────────────────────────────────────────────────
+# Fixed, recorded here rather than in shell history, and identical for every
+# configuration so encoder comparisons are paired across seeds.
+# 42 is first because it is the seed the published single-run numbers used, so
+# seed 42 doubles as the reproduction check.
+train_seeds: [42, 43, 44, 45, 46]
+
+# FIXED for the whole study — never varied. This selects which MoNuSeg images
+# are held out for validation. MoNuSeg has 37 training images; resampling the
+# split per seed would conflate split variance with training-seed variance, and
+# this study measures the latter. PanNuke uses the dataset's predefined folds,
+# so split_seed does not apply there.
+split_seed: 42
+
+# ── Performance and numerics regime ──────────────────────────────────────────
+# Everything here except `amp` is numerics-neutral: it changes when work happens
+# and where bytes come from, not what is computed.
+performance:
+  # THE ONE NUMERICS-ALTERING SETTING, and it is deliberate.
+  #
+  # The reviewed code ran `torch.autocast(dtype=float16)` on any non-CPU device
+  # with no GradScaler. On the Apple M3 / MPS backend that the published numbers
+  # came from, that autocast was inert — the published ResNet loss trajectory
+  # (0.2556 / 0.2372 / 0.2007 / 0.1682) matches fp32 on a V100 to four decimals
+  # (0.2565 / 0.2387 / 0.2026 / 0.1682).
+  #
+  # On CUDA the same autocast is fully active, and without a GradScaler it zeroes
+  # 92-98% of the ResNet encoder's gradients: the loss never leaves ~0.25 and the
+  # run lands at Dice 0.667 against 0.849 published. VGG happens to survive
+  # (0.2% zero gradients), which is why only one row of Table 1 looked wrong.
+  # Measured by scripts/diagnose_amp.py.
+  #
+  # fp32 is therefore the regime the reviewed results were actually produced in,
+  # and it is what the whole sweep uses. Costs ~1.6x wall clock on this hardware
+  # (ResNet 96 s/epoch vs 60 s). Adding a GradScaler instead would be free and
+  # gives the same trajectories, but it would introduce a component the reviewed
+  # code did not have.
+  #
+  # Never mix this across runs in a table.
+  amp: false
+
+  num_workers: 8
+  pin_memory: true
+  prefetch_factor: 4
+
+  # OFF deliberately, and this one is a correctness setting, not a speed one.
+  # Persistent workers keep their numpy augmentation state inside worker
+  # processes across epochs, where it cannot be checkpointed. A run resumed
+  # after a wall-clock kill would then take a different augmentation stream from
+  # an identical run that was never interrupted — measured and confirmed by
+  # scripts/check_resume.py, which diverges at exactly the resume epoch with
+  # persistent workers on and is bit-identical with them off. Since tasks WILL
+  # hit the 8h partition cap and resume, leaving this on would make "was this
+  # run preempted?" a hidden variable in the reported variance.
+  # Cost on Linux (fork) is one worker respawn per epoch: a fraction of a
+  # percent on PanNuke epochs, about a minute over a whole MoNuSeg run.
+  persistent_workers: false
+
+  # last.pt is written this often (plus on early stop and on preemption
+  # signal), bounding rework after a wall-clock kill to this many epochs.
+  checkpoint_every_epochs: 5
+
+# ── The matrix ───────────────────────────────────────────────────────────────
+runs:
+  - id: pannuke_vgg_bce
+    table: "1"
+    dataset: pannuke
+    encoder: vgg
+    loss: bce_logits
+    row_label: "VGG"
+    published: {dice: 0.8513196600147706, iou: 0.7441754588458545, epochs: 48}
+    base: configs/default.yaml
+    overrides: []
+
+  - id: pannuke_vgg_dice
+    table: "1"
+    dataset: pannuke
+    encoder: vgg
+    loss: dice
+    row_label: "VGG"
+    published: {dice: 0.8505919535488676, iou: 0.7432345872051206, epochs: 53}
+    base: configs/default.yaml
+    overrides: [configs/ablations/dice_loss.yaml]
+
+  - id: pannuke_resnet_bce
+    table: "1"
+    dataset: pannuke
+    encoder: resnet
+    loss: bce_logits
+    row_label: "ResNet"
+    published: {dice: 0.848639835797447, iou: 0.7404934469381036, epochs: 47}
+    base: configs/default.yaml
+    overrides: [configs/ablations/resnet.yaml]
+
+  - id: pannuke_swin_scratch
+    table: "1"
+    dataset: pannuke
+    encoder: swin
+    loss: bce_logits
+    row_label: "Swin-T (scratch)"
+    published: {dice: 0.5903003696882527, iou: 0.4423390347179864, epochs: 20}
+    base: configs/default.yaml
+    overrides: [configs/ablations/swin.yaml]
+
+  - id: pannuke_swin_pretrained
+    table: "1"
+    dataset: pannuke
+    encoder: swin_pretrained
+    loss: bce_logits
+    row_label: "Swin-T (pretrained)"
+    published: {dice: 0.8017052147858686, iou: 0.6758802898232572, epochs: 92}
+    base: configs/default.yaml
+    overrides: [configs/ablations/swin_pretrained.yaml]
+
+  - id: monuseg_vgg_bce
+    table: "2"
+    dataset: monuseg
+    encoder: vgg
+    loss: bce_logits
+    row_label: "VGG (ours, 37 imgs)"
+    published: {dice: 0.7959437583174024, iou: 0.6627872884273529, epochs: 80}
+    base: configs/default.yaml
+    overrides: [configs/ablations/monuseg.yaml]
+
+  - id: monuseg_swin_pretrained
+    table: "2"
+    dataset: monuseg
+    encoder: swin_pretrained
+    loss: bce_logits
+    row_label: "Swin-T (pretrained, ours, 37 imgs)"
+    published: {dice: 0.749923586845398, iou: 0.6036863986934934, epochs: 137}
+    base: configs/default.yaml
+    overrides: [configs/ablations/swin_pretrained_monuseg.yaml]

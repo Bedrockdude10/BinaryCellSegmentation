@@ -1,0 +1,85 @@
+GPU model (all runs): Tesla V100-SXM2-32GB
+split hash [monuseg]: e25a712880cd2856c1ad93c5e99341b497b9a88dd57825faaa659be72718a621
+split hash [pannuke]: e7973abf6c3192b3e75f2f8df486695a282e2d1c3bb9f3ce9c2a8088a354d490
+
+config                      n           test Dice           test IoU        epochs  best ep  wall/run
+pannuke_swin_scratch        5  0.8255+-0.0011  0.7028+-0.0016    69.0+- 9.4     54.0     2h15m
+pannuke_swin_pretrained     5  0.8244+-0.0009  0.7012+-0.0012    96.2+- 5.0     85.0     3h09m
+pannuke_resnet_bce          5  0.8526+-0.0003  0.7431+-0.0005    49.8+- 3.8     34.8     1h18m
+pannuke_vgg_dice            5  0.8561+-0.0007  0.7484+-0.0011    84.8+-17.5     70.8     1h35m
+pannuke_vgg_bce             5  0.8544+-0.0003  0.7458+-0.0004    51.8+- 2.6     36.8     0h58m
+monuseg_swin_pretrained     5  0.7578+-0.0067  0.6132+-0.0076   121.8+-17.6    103.6     0h36m
+monuseg_vgg_bce             5  0.7939+-0.0113  0.6603+-0.0150    55.4+-10.5     35.4     0h09m
+
+total wall clock: 50h23m over 35 runs (1h26m mean)
+
+Published single-seed value vs multi-seed mean (delta in units of SD):
+  pannuke_swin_scratch       published 0.5903  mean 0.8255  delta +0.2352 (+218.2 SD)  seed-42 0.8254
+  pannuke_swin_pretrained    published 0.8017  mean 0.8244  delta +0.0227 (+26.6 SD)  seed-42 0.8241
+  pannuke_resnet_bce         published 0.8486  mean 0.8526  delta +0.0040 (+11.9 SD)  seed-42 0.8524
+  pannuke_vgg_dice           published 0.8506  mean 0.8561  delta +0.0055 (+7.6 SD)  seed-42 0.8568
+  pannuke_vgg_bce            published 0.8513  mean 0.8544  delta +0.0031 (+12.0 SD)  seed-42 0.8544
+  monuseg_swin_pretrained    published 0.7499  mean 0.7578  delta +0.0078 (+1.2 SD)  seed-42 0.7486
+  monuseg_vgg_bce            published 0.7959  mean 0.7939  delta -0.0020 (-0.2 SD)  seed-42 0.8045
+
+Pairwise differences, |delta| / pooled SD (smallest first):
+   [dice] pannuke_swin_scratch     vs pannuke_swin_pretrained  delta +0.0011  pooledSD 0.0010  ratio    1.1  <-- within 2x pooled SD, treat as indistinguishable
+   [iou ] pannuke_swin_scratch     vs pannuke_swin_pretrained  delta +0.0016  pooledSD 0.0014  ratio    1.1  <-- within 2x pooled SD, treat as indistinguishable
+   [iou ] pannuke_vgg_dice         vs pannuke_vgg_bce          delta +0.0026  pooledSD 0.0008  ratio    3.1
+   [dice] pannuke_vgg_dice         vs pannuke_vgg_bce          delta +0.0017  pooledSD 0.0005  ratio    3.1
+   [dice] monuseg_swin_pretrained  vs monuseg_vgg_bce          delta -0.0362  pooledSD 0.0093  ratio    3.9
+   [iou ] monuseg_swin_pretrained  vs monuseg_vgg_bce          delta -0.0471  pooledSD 0.0119  ratio    4.0
+   [dice] pannuke_resnet_bce       vs pannuke_vgg_bce          delta -0.0018  pooledSD 0.0003  ratio    6.0
+   [iou ] pannuke_resnet_bce       vs pannuke_vgg_bce          delta -0.0027  pooledSD 0.0005  ratio    6.0
+   [iou ] pannuke_resnet_bce       vs pannuke_vgg_dice         delta -0.0053  pooledSD 0.0009  ratio    6.2
+   [dice] pannuke_resnet_bce       vs pannuke_vgg_dice         delta -0.0035  pooledSD 0.0006  ratio    6.2
+   [dice] pannuke_swin_scratch     vs pannuke_vgg_dice         delta -0.0307  pooledSD 0.0009  ratio   33.4
+   [iou ] pannuke_swin_scratch     vs pannuke_vgg_dice         delta -0.0456  pooledSD 0.0014  ratio   33.7
+   [dice] pannuke_swin_scratch     vs pannuke_resnet_bce       delta -0.0272  pooledSD 0.0008  ratio   34.0
+   [iou ] pannuke_swin_scratch     vs pannuke_resnet_bce       delta -0.0403  pooledSD 0.0012  ratio   34.7
+   [dice] pannuke_swin_scratch     vs pannuke_vgg_bce          delta -0.0290  pooledSD 0.0008  ratio   37.0
+   [iou ] pannuke_swin_scratch     vs pannuke_vgg_bce          delta -0.0431  pooledSD 0.0011  ratio   37.8
+   [dice] pannuke_swin_pretrained  vs pannuke_vgg_dice         delta -0.0317  pooledSD 0.0008  ratio   40.1
+   [iou ] pannuke_swin_pretrained  vs pannuke_vgg_dice         delta -0.0472  pooledSD 0.0012  ratio   40.3
+   [dice] pannuke_swin_pretrained  vs pannuke_resnet_bce       delta -0.0282  pooledSD 0.0006  ratio   43.6
+   [iou ] pannuke_swin_pretrained  vs pannuke_resnet_bce       delta -0.0419  pooledSD 0.0009  ratio   44.4
+   [dice] pannuke_swin_pretrained  vs pannuke_vgg_bce          delta -0.0300  pooledSD 0.0006  ratio   47.7
+   [iou ] pannuke_swin_pretrained  vs pannuke_vgg_bce          delta -0.0446  pooledSD 0.0009  ratio   48.7
+
+==============================================================================
+% Table 1 body (tab:pannuke_results) — columns: @{}llcccr@{} — mean $\pm$ SD
+==============================================================================
+Otsu (classical) & --- & 0.482 & 0.349 & --- & 0 \\
+Swin-T (scratch) & BCE & 0.825 $\pm$ 0.001 & 0.703 $\pm$ 0.002 & 69.0 $\pm$ 9.4 & 86.8M \\
+Swin-T (pretrained) & BCE & 0.824 $\pm$ 0.001 & 0.701 $\pm$ 0.001 & 96.2 $\pm$ 5.0 & 86.8M \\
+ResNet & BCE & 0.853 $\pm$ 0.000 & 0.743 $\pm$ 0.001 & 49.8 $\pm$ 3.8 & 37.5M \\
+VGG & Dice & \textbf{0.856} $\pm$ \textbf{0.001} & \textbf{0.748} $\pm$ \textbf{0.001} & 84.8 $\pm$ 17.5 & 34.0M \\
+VGG & BCE & 0.854 $\pm$ 0.000 & 0.746 $\pm$ 0.000 & 51.8 $\pm$ 2.6 & 34.0M \\
+
+==============================================================================
+% Table 2 body (tab:monuseg_results) — columns: @{}lccc@{} — mean $\pm$ SD
+==============================================================================
+MedT~\cite{valanarasu2021medt} (published, 30 imgs) & 0.796 & 0.662 & 1.4M \\
+Swin-T (pretrained, ours, 37 imgs) & 0.758 $\pm$ 0.007 & 0.613 $\pm$ 0.008 & 86.8M \\
+VGG (ours, 37 imgs) & \textbf{0.794} $\pm$ \textbf{0.011} & \textbf{0.660} $\pm$ \textbf{0.015} & 34.0M \\
+
+
+==============================================================================
+% Table 1 body (tab:pannuke_results) — columns: @{}llcccr@{} — mean (SD) — narrower, if the 6-column Table 1 overflows the LNCS text width
+==============================================================================
+Otsu (classical) & --- & 0.482 & 0.349 & --- & 0 \\
+Swin-T (scratch) & BCE & 0.825\,(0.001) & 0.703\,(0.002) & 69.0\,(9.4) & 86.8M \\
+Swin-T (pretrained) & BCE & 0.824\,(0.001) & 0.701\,(0.001) & 96.2\,(5.0) & 86.8M \\
+ResNet & BCE & 0.853\,(0.000) & 0.743\,(0.001) & 49.8\,(3.8) & 37.5M \\
+VGG & Dice & \textbf{0.856}\,(0.001) & \textbf{0.748}\,(0.001) & 84.8\,(17.5) & 34.0M \\
+VGG & BCE & 0.854\,(0.000) & 0.746\,(0.000) & 51.8\,(2.6) & 34.0M \\
+
+==============================================================================
+% Table 2 body (tab:monuseg_results) — columns: @{}lccc@{} — mean (SD) — narrower, if the 6-column Table 1 overflows the LNCS text width
+==============================================================================
+MedT~\cite{valanarasu2021medt} (published, 30 imgs) & 0.796 & 0.662 & 1.4M \\
+Swin-T (pretrained, ours, 37 imgs) & 0.758\,(0.007) & 0.613\,(0.008) & 86.8M \\
+VGG (ours, 37 imgs) & \textbf{0.794}\,(0.011) & \textbf{0.660}\,(0.015) & 34.0M \\
+
+
+Wrote runs/summary.json

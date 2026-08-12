@@ -1,0 +1,85 @@
+{
+  "code_hash": "b422ecc210ab8ef8f02caf3f58e05539c40d75ac994da22ac9c37517eff33780",
+  "conditions": {
+    "autocast": false,
+    "batch_size": 1,
+    "dtype": "fp32",
+    "exclusive_gpu": true,
+    "input": "3x256x256",
+    "mode": "eval/no_grad",
+    "other_gpu_processes": [],
+    "peak_memory_definition": "max_memory_allocated over one forward pass after reset_peak_memory_stats (weights + activations)",
+    "synchronised_per_iteration": true,
+    "timed_iters": 300,
+    "warmup_iters": 50
+  },
+  "cudnn_benchmark": false,
+  "cudnn_deterministic": false,
+  "device": "cuda",
+  "git_dirty": true,
+  "git_sha": "a3f2dcb49bd7eb73ba8f71113578767cdb6c6004",
+  "gpu_capability": "7.0",
+  "gpu_model": "Tesla V100-SXM2-32GB",
+  "measured_at": "2026-08-04T07:58:40-0400",
+  "node": "d1007",
+  "platform": "Linux-5.14.0-362.13.1.el9_3.x86_64-x86_64-with-glibc2.34",
+  "published_m3_reference": {
+    "ResNet U-Net": [
+      34.2,
+      144.0
+    ],
+    "Swin-T U-Net (pretrained)": [
+      46.6,
+      333.6
+    ],
+    "VGG U-Net": [
+      25.2,
+      130.5
+    ]
+  },
+  "results": {
+    "ResNet U-Net": {
+      "latency_ms_max": 9.912929031997919,
+      "latency_ms_mean": 9.628979956420759,
+      "latency_ms_median": 9.625013452023268,
+      "latency_ms_min": 9.593072347342968,
+      "latency_ms_p05": 9.600040037184954,
+      "latency_ms_p95": 9.664328768849373,
+      "params_total": 37523201,
+      "peak_memory_mb": 277.23388671875,
+      "weights_mb": 143.13965225219727
+    },
+    "Swin-T U-Net (pretrained)": {
+      "latency_ms_max": 19.681402016431093,
+      "latency_ms_mean": 18.401001472957432,
+      "latency_ms_median": 18.374728970229626,
+      "latency_ms_min": 18.316491041332483,
+      "latency_ms_p05": 18.344908021390438,
+      "latency_ms_p95": 18.50359607487917,
+      "params_total": 86805307,
+      "peak_memory_mb": 618.763671875,
+      "weights_mb": 331.1359672546387
+    },
+    "VGG U-Net": {
+      "latency_ms_max": 7.301110774278641,
+      "latency_ms_mean": 7.088268400790791,
+      "latency_ms_median": 7.085086312144995,
+      "latency_ms_min": 7.057567127048969,
+      "latency_ms_p05": 7.0690009742975235,
+      "latency_ms_p95": 7.115722168236971,
+      "params_total": 33994945,
+      "peak_memory_mb": 264.8759765625,
+      "weights_mb": 129.68042373657227
+    }
+  },
+  "slurm_array_task_id": null,
+  "slurm_job_id": "8927997",
+  "versions": {
+    "cuda": "12.4",
+    "cudnn": 90100,
+    "numpy": "2.5.1",
+    "python": "3.13.9",
+    "timm": "1.0.28",
+    "torch": "2.6.0+cu124"
+  }
+}

@@ -1,0 +1,215 @@
+{
+  "amp_enabled": true,
+  "best_epoch": 8,
+  "best_val_dice": 0.6697952747344971,
+  "code_hash": "4b73c3e82aff61e2cae08318d2d98e2b7e83912d327d57519d713d8192e73844",
+  "config": {
+    "data": {
+      "batch_size": 8,
+      "cache_root": "/tmp/nucseg_cache",
+      "num_workers": 4,
+      "test_split": "fold3",
+      "train_split": "fold1",
+      "val_split": "fold2"
+    },
+    "experiment": {
+      "device": "auto",
+      "name": "pannuke_resnet_bce_seed42",
+      "output_dir": "outputs",
+      "seed": 42,
+      "split_seed": 42,
+      "sweep_id": "pannuke_resnet_bce",
+      "train_seed": 42
+    },
+    "loss": "bce_logits",
+    "model": {
+      "architecture": "resnet",
+      "params": {
+        "in_channels": 3,
+        "out_channels": 1
+      }
+    },
+    "optimizer": {
+      "lr": 0.01,
+      "momentum": 0.9,
+      "type": "sgd",
+      "weight_decay": 0.0001
+    },
+    "performance": {
+      "checkpoint_every_epochs": 5,
+      "num_workers": 8,
+      "persistent_workers": false,
+      "pin_memory": true,
+      "prefetch_factor": 4
+    },
+    "preprocessing": {
+      "augmentation": {
+        "horizontal_flip": true,
+        "rotation_degrees": 90,
+        "vertical_flip": true
+      },
+      "normalize": {
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ]
+      }
+    },
+    "scheduler": {
+      "gamma": 0.1,
+      "step_size": 30,
+      "type": "step"
+    },
+    "training": {
+      "checkpoint_interval": 10,
+      "early_stopping": {
+        "metric": "dice",
+        "patience": 15
+      },
+      "epochs": 100,
+      "log_interval": 10
+    }
+  },
+  "cudnn_benchmark": false,
+  "cudnn_deterministic": false,
+  "dataset": "pannuke",
+  "device": "cuda",
+  "early_stopped": true,
+  "early_stopping_metric": "dice",
+  "early_stopping_patience": 15,
+  "encoder": "resnet",
+  "epochs_max": 100,
+  "epochs_run": 23,
+  "git_dirty": true,
+  "git_sha": "a3f2dcb49bd7eb73ba8f71113578767cdb6c6004",
+  "gpu_capability": "7.0",
+  "gpu_model": "Tesla V100-SXM2-32GB",
+  "loss": "bce_logits",
+  "n_test_patches": 2722,
+  "n_train_patches": 2656,
+  "n_val_patches": 2523,
+  "node": "d1012",
+  "params_total": 37523201,
+  "params_trainable": 37523201,
+  "peak_gpu_memory_bytes": 2515630592,
+  "resumed_from_epoch": null,
+  "run_id": "pannuke_resnet_bce_seed42",
+  "slurm_array_task_id": "3",
+  "slurm_job_id": "8914774",
+  "split_hash": "e7973abf6c3192b3e75f2f8df486695a282e2d1c3bb9f3ce9c2a8088a354d490",
+  "split_seed": 42,
+  "split_summary": {
+    "dataset": "pannuke",
+    "folds": {
+      "test": "fold3",
+      "train": "fold1",
+      "val": "fold2"
+    },
+    "num_examples": {
+      "fold1": 2656,
+      "fold2": 2523,
+      "fold3": 2722
+    },
+    "split_seed": null
+  },
+  "status": "complete",
+  "table": "1",
+  "test": {
+    "dice": 0.6669401526451111,
+    "iou": 0.5003077387809753,
+    "protocol": "pooled patches",
+    "split": "fold3"
+  },
+  "train_loss_per_epoch": [
+    0.269497590880078,
+    0.2572749218488314,
+    0.25764916271689425,
+    0.2541195219719266,
+    0.25259164280920143,
+    0.24963652602879396,
+    0.2518805975027113,
+    0.2504247119089207,
+    0.25125221697142325,
+    0.24915019108588438,
+    0.24820795071771345,
+    0.2514992464468422,
+    0.25099741254585334,
+    0.25008592503257543,
+    0.2531845043132822,
+    0.25192893256085463,
+    0.25384852361966326,
+    0.2548233111759266,
+    0.2550523140164743,
+    0.2547947895455073,
+    0.254140495490956,
+    0.25721820699701825,
+    0.2540588549461709
+  ],
+  "train_seed": 42,
+  "val_dice_per_epoch": [
+    0.6411661505699158,
+    0.6502026915550232,
+    0.6662377119064331,
+    0.6500679850578308,
+    0.651419460773468,
+    0.6645236015319824,
+    0.6536447405815125,
+    0.6697952747344971,
+    0.6425806283950806,
+    0.6468575596809387,
+    0.6640766263008118,
+    0.6644868850708008,
+    0.6487866044044495,
+    0.6611300706863403,
+    0.6635467410087585,
+    0.6616165637969971,
+    0.6665427088737488,
+    0.6442000269889832,
+    0.6629152297973633,
+    0.6693950891494751,
+    0.6535059213638306,
+    0.6528559327125549,
+    0.6510645747184753
+  ],
+  "val_iou_per_epoch": [
+    0.47185030579566956,
+    0.4817039668560028,
+    0.4995175898075104,
+    0.48155611753463745,
+    0.48304083943367004,
+    0.49759289622306824,
+    0.4854919910430908,
+    0.5035279393196106,
+    0.4733840525150299,
+    0.4780409634113312,
+    0.4970918893814087,
+    0.49755173921585083,
+    0.48015108704566956,
+    0.49379703402519226,
+    0.4964982867240906,
+    0.49434006214141846,
+    0.49986058473587036,
+    0.4751438796520233,
+    0.4957914650440216,
+    0.5030757784843445,
+    0.48533889651298523,
+    0.48462218046188354,
+    0.4826506972312927
+  ],
+  "versions": {
+    "cuda": "12.4",
+    "cudnn": 90100,
+    "numpy": "2.5.1",
+    "python": "3.13.9",
+    "timm": "1.0.28",
+    "torch": "2.6.0+cu124"
+  },
+  "wall_clock_seconds": 1340.0022015571594,
+  "wall_clock_seconds_this_segment": 1340.0028939247131
+}

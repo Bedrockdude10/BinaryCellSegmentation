@@ -1919,3 +1919,19 @@ data/MoNuSeg 2018 Training Data/Annotations/TCGA-18-5592-01Z-00-DX1.xml
 data/MoNuSeg 2018 Training Data/.DS_Store
 data/he_to_binary_mask_final.m
 *.pt
+
+# ── Multi-seed sweep artifacts (added for the camera-ready re-run) ──
+# Flat memmap patch caches — regenerate with scripts/prepare_cache.py
+data/pannuke_flat_*/
+data/monuseg_flat_*/
+# Per-run artifacts: results.json is the deliverable, checkpoints are not
+runs/**/*.pt
+runs/**/train.log
+runs/.claims/
+slurm_logs/
+
+# Runs from the discarded fp16 regime, kept as evidence
+discarded_amp_fp16_regime/**/*.pt
+
+# Throwaway 3-epoch plumbing output from slurm/preflight.sbatch
+runs_smoke/

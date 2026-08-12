@@ -1,0 +1,49 @@
+# configs/sweep_supp.yaml
+#
+# SUPPLEMENTARY sweep — deliberately a separate file from configs/sweep.yaml.
+#
+# Purpose: confirm the pretrained-Swin result in Table 1 is not an artifact of the
+# 100-epoch cap. In the main sweep, pretrained Swin on PanNuke reached the cap in
+# 2 of 5 seeds (epochs [88, 100, 95, 100, 98]), and one of those had its best
+# epoch AT the cap. The evidence already said the cap was not costing anything —
+# the 2 capped seeds averaged 0.8250 against 0.8240 for the 3 that converged on
+# patience, i.e. slightly higher and well within noise — but this measures it
+# directly.
+#
+# Kept separate on purpose, at three levels:
+#   1. own sweep file, so configs/sweep.yaml is untouched and the 35 banked runs
+#      keep their recorded code_hash;
+#   2. own run root (runs_supp/), so scripts/aggregate.py over runs/ cannot see
+#      these at all;
+#   3. table: "supp", so even if aggregated together they are excluded from the
+#      Table 1 and Table 2 LaTeX bodies.
+#
+# These numbers do NOT belong in Table 1. Extending epochs also stretches the
+# cosine schedule (T_max = training.epochs), so this is a different LR schedule,
+# not a longer version of the reviewed run.
+
+# Same five seeds as the main sweep, so the comparison is paired.
+train_seeds: [42, 43, 44, 45, 46]
+split_seed: 42
+
+performance:
+  # Must match the main sweep exactly or the comparison is meaningless.
+  amp: false
+  num_workers: 8
+  pin_memory: true
+  prefetch_factor: 4
+  persistent_workers: false
+  checkpoint_every_epochs: 5
+
+runs:
+  - id: pannuke_swin_pretrained_e150
+    table: "supp"
+    dataset: pannuke
+    encoder: swin_pretrained
+    loss: bce_logits
+    row_label: "Swin-T (pretrained, 150-epoch cosine) [supplementary]"
+    # No `published` key: there is no published counterpart to reproduce.
+    base: configs/default.yaml
+    overrides:
+      - configs/ablations/swin_pretrained.yaml
+      - configs/ablations/swin_pretrained_long.yaml

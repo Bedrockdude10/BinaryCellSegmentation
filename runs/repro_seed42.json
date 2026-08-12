@@ -1,0 +1,103 @@
+{
+  "failures": [
+    "pannuke_swin_scratch: Dice delta +0.2351 exceeds +-0.015 (published 0.5903, new 0.8254)",
+    "pannuke_swin_pretrained: Dice delta +0.0224 exceeds +-0.015 (published 0.8017, new 0.8241)",
+    "structural claim broken: pannuke_swin_pretrained - pannuke_swin_scratch = -0.0014 (need >= +0.150)"
+  ],
+  "gpu_model": "Tesla V100-SXM2-32GB",
+  "rows": {
+    "monuseg_swin_pretrained": {
+      "delta_dice": -0.0013040389333452973,
+      "delta_iou": -0.00039458061967567737,
+      "dice": 0.7486195479120527,
+      "epochs": 150,
+      "iou": 0.6032918180738177,
+      "published": {
+        "dice": 0.749923586845398,
+        "epochs": 137,
+        "iou": 0.6036863986934934
+      },
+      "within_tolerance": true
+    },
+    "monuseg_vgg_bce": {
+      "delta_dice": 0.00855763469423576,
+      "delta_iou": 0.011516119752611464,
+      "dice": 0.8045013930116381,
+      "epochs": 70,
+      "iou": 0.6743034081799644,
+      "published": {
+        "dice": 0.7959437583174024,
+        "epochs": 80,
+        "iou": 0.6627872884273529
+      },
+      "within_tolerance": true
+    },
+    "pannuke_resnet_bce": {
+      "delta_dice": 0.0037735205067217503,
+      "delta_iou": 0.00229439104407414,
+      "dice": 0.8524133563041687,
+      "epochs": 51,
+      "iou": 0.7427878379821777,
+      "published": {
+        "dice": 0.848639835797447,
+        "epochs": 47,
+        "iou": 0.7404934469381036
+      },
+      "within_tolerance": true
+    },
+    "pannuke_swin_pretrained": {
+      "delta_dice": 0.022369470787709234,
+      "delta_iou": 0.02490808889225793,
+      "dice": 0.8240746855735779,
+      "epochs": 88,
+      "iou": 0.7007883787155151,
+      "published": {
+        "dice": 0.8017052147858686,
+        "epochs": 92,
+        "iou": 0.6758802898232572
+      },
+      "within_tolerance": false
+    },
+    "pannuke_swin_scratch": {
+      "delta_dice": 0.23514689164521285,
+      "delta_iou": 0.2604367416682746,
+      "dice": 0.8254472613334656,
+      "epochs": 63,
+      "iou": 0.702775776386261,
+      "published": {
+        "dice": 0.5903003696882527,
+        "epochs": 20,
+        "iou": 0.4423390347179864
+      },
+      "within_tolerance": false
+    },
+    "pannuke_vgg_bce": {
+      "delta_dice": 0.0030462252429503955,
+      "delta_iou": 0.001582597794770546,
+      "dice": 0.854365885257721,
+      "epochs": 51,
+      "iou": 0.745758056640625,
+      "published": {
+        "dice": 0.8513196600147706,
+        "epochs": 48,
+        "iou": 0.7441754588458545
+      },
+      "within_tolerance": true
+    },
+    "pannuke_vgg_dice": {
+      "delta_dice": 0.006201509681265427,
+      "delta_iou": 0.006230580317309831,
+      "dice": 0.8567934632301331,
+      "epochs": 88,
+      "iou": 0.7494651675224304,
+      "published": {
+        "dice": 0.8505919535488676,
+        "epochs": 53,
+        "iou": 0.7432345872051206
+      },
+      "within_tolerance": true
+    }
+  },
+  "seed": 42,
+  "tolerance": 0.015
+}
