@@ -23,6 +23,8 @@ import statistics
 import sys
 from pathlib import Path
 
+from scipy import stats as _st
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.sweep import build_specs, load_sweep, sweep_entries  # noqa: E402
@@ -44,6 +46,86 @@ LOSS_LABEL = {"bce_logits": "BCE", "dice": "Dice"}
 
 class AggregationError(RuntimeError):
     pass
+
+
+CONF = 0.95
+
+# What the intervals and tests below do and do not cover. Printed with the
+# results because at n=5 the temptation to over-read them is the whole risk.
+SCOPE_NOTE = """Scope of the intervals and tests below:
+  * They quantify TRAINING-SEED variance on ONE fixed split, one GPU model, one
+    code version. They say a difference reproduces across training seeds. They
+    say nothing about whether it generalises across splits, datasets or hardware.
+  * Comparisons are PAIRED: every configuration ran the same five seeds
+    (42-46), so each comparison uses per-seed differences. That is the design's
+    real statistical strength and is why intervals this tight are possible at
+    n=5.
+  * A tiny p-value on a tiny difference still means a tiny difference. Read the
+    effect size (the paired mean difference in Dice), not the p-value.
+  * Wilcoxon signed-rank cannot go below p=0.0625 two-sided at n=5, so it is
+    reported for completeness but is powerless here by construction.
+  * p-values are Holm-Bonferroni adjusted within each table's comparison family.
+"""
+
+
+def mean_ci(values: list[float], conf: float = CONF) -> dict:
+    """t-based CI for the mean. df = n-1, so df=4 and t*=2.776 at n=5."""
+    n = len(values)
+    if n < 2:
+        return {"lo": float("nan"), "hi": float("nan"), "half_width": float("nan"),
+                "conf": conf, "n": n}
+    m = statistics.fmean(values)
+    sd = statistics.stdev(values)
+    tcrit = float(_st.t.ppf(0.5 + conf / 2, n - 1))
+    hw = tcrit * sd / n ** 0.5
+    return {"lo": m - hw, "hi": m + hw, "half_width": hw, "conf": conf,
+            "n": n, "t_crit": tcrit}
+
+
+def paired_stats(a_vals, b_vals, a_seeds, b_seeds, label_a="", label_b="") -> dict:
+    """Paired comparison on per-seed differences.
+
+    Refuses to proceed if the two configurations did not run the same seeds —
+    pairing by position would otherwise silently compare unrelated runs.
+    """
+    if list(a_seeds) != list(b_seeds):
+        raise AggregationError(
+            f"cannot pair {label_a} (seeds {list(a_seeds)}) with {label_b} "
+            f"(seeds {list(b_seeds)}): the seed sets differ"
+        )
+    diffs = [a - b for a, b in zip(a_vals, b_vals)]
+    n = len(diffs)
+    md = statistics.fmean(diffs)
+    sd = statistics.stdev(diffs) if n > 1 else 0.0
+    out = {"n": n, "diffs": diffs, "mean_diff": md, "sd_diff": sd,
+           "same_sign": all(d > 0 for d in diffs) or all(d < 0 for d in diffs)}
+    ci = mean_ci(diffs)
+    out["ci_lo"], out["ci_hi"] = ci["lo"], ci["hi"]
+    out["ci_excludes_zero"] = (ci["lo"] > 0) or (ci["hi"] < 0)
+    if sd > 0:
+        t = _st.ttest_rel(a_vals, b_vals)
+        out["t_stat"], out["p_paired_t"] = float(t.statistic), float(t.pvalue)
+        out["cohens_dz"] = md / sd
+    else:
+        out["t_stat"] = out["p_paired_t"] = out["cohens_dz"] = float("nan")
+    try:
+        out["p_wilcoxon"] = float(_st.wilcoxon(a_vals, b_vals).pvalue)
+    except ValueError:
+        out["p_wilcoxon"] = float("nan")
+    return out
+
+
+def holm(pvals: list[float]) -> list[float]:
+    """Holm-Bonferroni step-down adjustment, monotonicity enforced."""
+    m = len(pvals)
+    order = sorted(range(m), key=lambda i: pvals[i])
+    adj = [0.0] * m
+    running = 0.0
+    for rank, i in enumerate(order):
+        val = min(1.0, (m - rank) * pvals[i])
+        running = max(running, val)
+        adj[i] = running
+    return adj
 
 
 # ── Load ─────────────────────────────────────────────────────────────────────
@@ -136,7 +218,7 @@ def check_regime(groups: dict[str, list[dict]]) -> list[str]:
 
 def _mstd(values: list[float]) -> dict:
     vals = [float(v) for v in values]
-    return {
+    out = {
         "mean": statistics.fmean(vals),
         "std": statistics.stdev(vals) if len(vals) > 1 else 0.0,
         "n": len(vals),
@@ -144,6 +226,8 @@ def _mstd(values: list[float]) -> dict:
         "max": max(vals),
         "values": vals,
     }
+    out["ci"] = mean_ci(vals)
+    return out
 
 
 def summarise(sweep_id: str, runs: list[dict], entry: dict) -> dict:
@@ -182,6 +266,7 @@ def pooled_std(a: dict, b: dict) -> float:
 
 
 def comparisons(summaries: dict[str, dict], order: list[str], metric: str) -> list[dict]:
+    """Pairwise comparisons, paired by seed, with Holm-adjusted p within the family."""
     out = []
     present = [s for s in order if s in summaries]
     for i, a_id in enumerate(present):
@@ -189,12 +274,21 @@ def comparisons(summaries: dict[str, dict], order: list[str], metric: str) -> li
             a, b = summaries[a_id][metric], summaries[b_id][metric]
             delta = abs(a["mean"] - b["mean"])
             ps = pooled_std(a, b)
-            out.append({
+            rec = {
                 "a": a_id, "b": b_id, "metric": metric,
                 "delta_mean": a["mean"] - b["mean"],
                 "abs_delta": delta, "pooled_std": ps,
                 "warning": delta < ps,
-            })
+            }
+            rec["paired"] = paired_stats(a["values"], b["values"],
+                                         summaries[a_id]["seeds"], summaries[b_id]["seeds"],
+                                         a_id, b_id)
+            out.append(rec)
+    # Holm within this (order, metric) family.
+    ps_list = [c["paired"]["p_paired_t"] for c in out]
+    if ps_list and not any(p != p for p in ps_list):  # no NaNs
+        for c, adj in zip(out, holm(ps_list)):
+            c["paired"]["p_holm"] = adj
     return out
 
 
@@ -203,18 +297,26 @@ def comparisons(summaries: dict[str, dict], order: list[str], metric: str) -> li
 # Table 1 already has 6 columns in a page-limited LNCS layout, so mean+-std may
 # not fit. "compact" writes the SD in parentheses, which is ~4 characters
 # narrower per cell and a conventional alternative.
-_STYLES = ("pm", "compact")
+_STYLES = ("pm", "compact", "ci")
 
 
 def _pm(stat: dict, places: int = 3, style: str = "pm") -> str:
     if style == "compact":
         return f"{stat['mean']:.{places}f}\\,({stat['std']:.{places}f})"
+    if style == "ci":
+        c = stat["ci"]
+        return (f"{stat['mean']:.{places}f} "
+                f"[{c['lo']:.{places}f},\\,{c['hi']:.{places}f}]")
     return f"{stat['mean']:.{places}f} $\\pm$ {stat['std']:.{places}f}"
 
 
 def _bold_pm(stat: dict, places: int = 3, style: str = "pm") -> str:
     if style == "compact":
         return f"\\textbf{{{stat['mean']:.{places}f}}}\\,({stat['std']:.{places}f})"
+    if style == "ci":
+        c = stat["ci"]
+        return (f"\\textbf{{{stat['mean']:.{places}f}}} "
+                f"[{c['lo']:.{places}f},\\,{c['hi']:.{places}f}]")
     return f"\\textbf{{{stat['mean']:.{places}f}}} $\\pm$ \\textbf{{{stat['std']:.{places}f}}}"
 
 
@@ -242,9 +344,13 @@ def latex_table1(summaries: dict[str, dict], otsu: dict | None, style: str = "pm
                 else _pm(s["test_dice"], style=style))
         iou = (_bold_pm(s["test_iou"], style=style) if sid == best_iou
                else _pm(s["test_iou"], style=style))
-        ep = (f"{s['epochs_run']['mean']:.1f}\\,({s['epochs_run']['std']:.1f})"
-              if style == "compact"
-              else f"{s['epochs_run']['mean']:.1f}{sep}{s['epochs_run']['std']:.1f}")
+        if style == "compact":
+            ep = f"{s['epochs_run']['mean']:.1f}\\,({s['epochs_run']['std']:.1f})"
+        elif style == "ci":
+            ec = s["epochs_run"]["ci"]
+            ep = f"{s['epochs_run']['mean']:.1f} [{ec['lo']:.1f},\\,{ec['hi']:.1f}]"
+        else:
+            ep = f"{s['epochs_run']['mean']:.1f}{sep}{s['epochs_run']['std']:.1f}"
         lines.append(
             f"{s['row_label']} & {LOSS_LABEL.get(s['loss'], s['loss'])} & {dice} & {iou} "
             f"& {ep} & {_params(s['params_total'])} \\\\"
@@ -289,18 +395,19 @@ def report(summaries: dict[str, dict], comps: list[dict], otsu: dict | None) -> 
         out.append(f"split hash [{dataset}]: {h}")
     out.append("")
 
-    out.append(f"{'config':26s} {'n':>2s}  {'test Dice':>18s} {'test IoU':>18s} "
-               f"{'epochs':>13s} {'best ep':>8s} {'wall/run':>9s}")
+    out.append(f"{'config':26s} {'n':>2s}  {'test Dice mean+-SD':>19s} "
+               f"{'95% CI of mean':>19s} {'test IoU':>17s} {'epochs':>13s} {'wall/run':>9s}")
     for sid in TABLE1_ORDER + TABLE2_ORDER + SUPP_ORDER:
         if sid not in summaries:
             continue
         s = summaries[sid]
+        ci = s["test_dice"]["ci"]
         out.append(
             f"{sid:26s} {s['n']:2d}  "
-            f"{s['test_dice']['mean']:.4f}+-{s['test_dice']['std']:.4f}  "
+            f"{s['test_dice']['mean']:.4f} +- {s['test_dice']['std']:.4f}  "
+            f"[{ci['lo']:.4f}, {ci['hi']:.4f}]  "
             f"{s['test_iou']['mean']:.4f}+-{s['test_iou']['std']:.4f}  "
             f"{s['epochs_run']['mean']:6.1f}+-{s['epochs_run']['std']:4.1f} "
-            f"{s['best_epoch']['mean']:8.1f} "
             f"{_fmt_hms(s['wall_clock_seconds']['mean']):>9s}"
         )
     total = sum(s["wall_clock_total_seconds"] for s in summaries.values())
@@ -321,23 +428,47 @@ def report(summaries: dict[str, dict], comps: list[dict], otsu: dict | None) -> 
         out.append(f"  {sid:26s} published {pub['dice']:.4f}  mean {got['mean']:.4f}  "
                    f"delta {d:+.4f} ({sd})  seed-42 {_seed42(s):.4f}")
 
-    # A hard flag at exactly 1x pooled SD is a brittle line to stand on, so every
-    # comparison's ratio is printed too: a delta of 1.1x the SD is no more
-    # claimable than one of 0.9x, and only showing the flagged ones would hide it.
     out.append("")
-    out.append("Pairwise differences, |delta| / pooled SD (smallest first):")
-    for c in sorted(comps, key=lambda x: abs(x["delta_mean"]) / max(x["pooled_std"], 1e-12)):
-        ratio = abs(c["delta_mean"]) / max(c["pooled_std"], 1e-12)
-        note = ("  <-- BELOW pooled SD, do not claim" if c["warning"]
-                else "  <-- within 2x pooled SD, treat as indistinguishable" if ratio < 2
-                else "")
-        out.append(f"   [{c['metric'][5:]:4s}] {c['a']:24s} vs {c['b']:24s} "
-                   f"delta {c['delta_mean']:+.4f}  pooledSD {c['pooled_std']:.4f}  "
-                   f"ratio {ratio:6.1f}{note}")
+    out.append(SCOPE_NOTE)
+    dice_comps = [c for c in comps if c["metric"] == "test_dice"]
+    out.append("Paired comparisons on test Dice (same 5 seeds; smallest effect first):")
+    out.append(f"   {'A vs B':52s} {'paired diff':>12s} {'95% CI':>20s} "
+               f"{'d_z':>7s} {'p(t)':>9s} {'p(Holm)':>9s} {'p(Wil)':>7s} sign")
+    for c in sorted(dice_comps, key=lambda x: abs(x["paired"]["mean_diff"])):
+        pr = c["paired"]
+        name = f"{c['a']} vs {c['b']}"
+        out.append(
+            f"   {name:52s} {pr['mean_diff']:+12.4f} "
+            f"[{pr['ci_lo']:+.4f},{pr['ci_hi']:+.4f}] {pr['cohens_dz']:7.1f} "
+            f"{pr['p_paired_t']:9.2e} {pr.get('p_holm', float('nan')):9.2e} "
+            f"{pr['p_wilcoxon']:7.4f} {'5/5' if pr['same_sign'] else 'mixed'}"
+        )
+    flagged = [c for c in dice_comps if not c["paired"]["ci_excludes_zero"]]
+    out.append("")
+    if flagged:
+        out.append("!! Paired 95% CI includes zero — do not claim these:")
+        for c in flagged:
+            pr = c["paired"]
+            out.append(f"   {c['a']} vs {c['b']}: {pr['mean_diff']:+.4f} "
+                       f"[{pr['ci_lo']:+.4f}, {pr['ci_hi']:+.4f}]")
+    else:
+        out.append("Every paired 95% CI on test Dice excludes zero.")
+    negligible = [c for c in dice_comps if abs(c["paired"]["mean_diff"]) < 0.005]
+    if negligible:
+        out.append("")
+        out.append("Reproducible but practically negligible (|diff| < 0.005 Dice, the "
+                   "paper's own materiality threshold):")
+        for c in sorted(negligible, key=lambda x: abs(x["paired"]["mean_diff"])):
+            pr = c["paired"]
+            out.append(f"   {c['a']} vs {c['b']}: {pr['mean_diff']:+.4f} Dice "
+                       f"(p_Holm {pr.get('p_holm', float('nan')):.1e}) — "
+                       f"significant, immaterial")
 
     for style in _STYLES:
-        label = ("mean $\\pm$ SD" if style == "pm" else "mean (SD) — narrower, if the "
-                 "6-column Table 1 overflows the LNCS text width")
+        label = {"pm": "mean $\\pm$ SD",
+                 "compact": "mean (SD) — narrower, if the 6-column Table 1 overflows "
+                            "the LNCS text width",
+                 "ci": "mean [95% CI of the mean], t-based, df=n-1=4"}[style]
         out.append("")
         out.append("=" * 78)
         out.append(f"% Table 1 body (tab:pannuke_results) — columns: @{{}}llcccr@{{}} — {label}")
