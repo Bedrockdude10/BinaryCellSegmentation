@@ -28,7 +28,7 @@
 \maketitle
 %
 \begin{abstract}
-For nucleus segmentation pipelines built without large annotated datasets or high-memory GPU infrastructure, a simple VGG U-Net encoder matches purpose-built transformer alternatives at a fraction of Swin-T's parameter count. We present a controlled comparison of VGG-style, ResNet-style, and Swin Transformer encoders within a shared U-Net framework, evaluated on PanNuke (${\sim}$5K training patches, 19 tissue types) and MoNuSeg (37 training whole-slide images). On PanNuke, VGG (Dice~0.854) matches ResNet (0.853) to within 0.002~Dice and outperforms pretrained Swin by 3.0~Dice points (0.824). On MoNuSeg, VGG (0.794) reaches published MedT-level performance---a transformer designed specifically for small medical datasets---while outperforming pretrained Swin by 3.6~Dice points (0.758). VGG is also the fastest and most memory-efficient of the learned models we test, making it Pareto-dominant over Swin-T at inference. Lightweight from-scratch architectures remain the practical choice for edge microscopy, veterinary and rare-disease research, and non-H\&E protocols. Of the three encoders we compare, a simple VGG is the strongest.
+For nucleus segmentation pipelines built without large annotated datasets or high-memory GPU infrastructure, a simple VGG U-Net encoder matches purpose-built transformer alternatives at a fraction of Swin-T's parameter count. We present a controlled comparison of VGG-style, ResNet-style, and Swin Transformer encoders within a shared U-Net framework, evaluated on PanNuke (${\sim}$5K training patches, 19 tissue types) and MoNuSeg (37 training whole-slide images). On PanNuke, VGG (Dice~0.854) matches ResNet (0.853) to within 0.002~Dice and outperforms pretrained Swin by 3.0~Dice points (0.824). On MoNuSeg, VGG (0.794) reaches published MedT-level performance---a transformer designed specifically for small medical datasets---while outperforming pretrained Swin by 3.6~Dice points (0.758). VGG is also the fastest and most memory-efficient of the learned models we test, making it Pareto-dominant over Swin-T on accuracy and inference cost. Lightweight from-scratch architectures remain the practical choice for edge microscopy, veterinary and rare-disease research, and non-H\&E protocols. Of the three encoders we compare, a simple VGG is the strongest.
 
 \keywords{Nucleus segmentation \and Histopathology \and U-Net \and Lightweight models \and Low-data.}
 \end{abstract}
@@ -41,11 +41,11 @@ Nucleus segmentation in histopathology images underlies a broad range of clinica
 
 This eases the labeled-data shortage but constrains deployment in ways recent work has documented: foundation models are typically restricted to linear probing rather than full fine-tuning due to memory and stability constraints~\cite{tizhoosh2025why,campanella2025clinical}; their robustness to cross-site distribution shift has been questioned~\cite{dejong2025current}; and their H\&E-pretrained features transfer poorly to non-standard stains such as IHC~\cite{hua2024pathoduet}. For deployment scenarios such as edge-deployed microscopy in under-served settings~\cite{salido2025realtime} and veterinary or rare-disease research~\cite{xiao2025review}, where annotation budgets permit only tens of whole-slide images, lightweight from-scratch architectures remain the practical choice.
 
-This raises a concrete design question: within the space of lightweight, from-scratch architectures, which encoder is best in the low-data regime? We answer it with a controlled ablation comparing VGG, ResNet, and Swin encoders on PanNuke and the genuinely small-data MoNuSeg (37 images), holding the decoder and encoder interface fixed so the backbone is the only variable. A VGG encoder outperforms both ResNet and pretrained Swin on PanNuke and matches MedT (a transformer built for small medical datasets) while outperforming pretrained Swin on MoNuSeg.
+This raises a concrete design question: within the space of lightweight, from-scratch architectures, which encoder is best in the low-data regime? We answer it with a controlled ablation comparing VGG, ResNet, and Swin encoders on PanNuke and the genuinely small-data MoNuSeg (37 images), holding the decoder and encoder interface fixed so the backbone is the only variable. A VGG encoder matches ResNet and outperforms pretrained Swin on PanNuke, and reaches MedT-level Dice (MedT being a transformer built for small medical datasets) while outperforming pretrained Swin on MoNuSeg.
 
 While this resolution-vs-inductive-bias tradeoff is qualitatively well understood, we are not aware of prior work isolating encoder family as the sole variable across both a patch-scale and a genuinely small whole-slide-image benchmark, attributing the performance gap to architecture rather than to the recipe, data, and hyperparameter confounds that limit cross-paper comparisons.
 
-\noindent\textbf{Contributions.} (1)~A controlled encoder-family ablation within a shared U-Net framework on PanNuke and MoNuSeg; (2)~evidence that a from-scratch VGG encoder matches MedT (a transformer purpose-built for small medical datasets) on MoNuSeg while beating pretrained Swin on both; (3)~inference-cost measurements showing VGG is Pareto-dominant over Swin-T in the lightweight regime.
+\noindent\textbf{Contributions.} (1)~A controlled encoder-family ablation within a shared U-Net framework on PanNuke and MoNuSeg; (2)~evidence that a from-scratch VGG encoder reaches MedT-level performance (MedT being a transformer purpose-built for small medical datasets) on MoNuSeg while beating pretrained Swin on both; (3)~inference-cost measurements showing VGG is Pareto-dominant over Swin-T on accuracy and inference cost.
 
 \noindent\textbf{Code and dependencies.} We implement the U-Net, training loop, evaluation, and data loaders from scratch in PyTorch (\texttt{torchvision} for I/O and augmentation); the Swin encoder loads a \texttt{timm}~\cite{rw2019timm} backbone with pretrained ImageNet weights, PanNuke comes from HuggingFace \texttt{datasets}, MoNuSeg from the MICCAI 2018 challenge, and Otsu from \texttt{scikit-image}. Code, configurations, trained checkpoints, and exact dependency versions are available at \url{https://github.com/Bedrockdude10/BinaryCellSegmentation}.
 
@@ -118,7 +118,7 @@ Otsu thresholding~\cite{otsu1979threshold} is the non-learned floor: each test i
 \subsection{Training Details}
 \label{sec:training_details}
 
-All models train with SGD (momentum 0.9, weight decay $10^{-4}$, batch size 8), with early stopping on validation Dice and consistent augmentation and ImageNet normalization. CNN encoders use learning rate $0.01$ with step decay ($\gamma=0.1$ at epoch 30); pretrained Swin uses $10^{-4}$ with cosine annealing. On \textbf{PanNuke}, patience is 15 (CNNs converge in 48--50 epochs); on \textbf{MoNuSeg}, patience is 20 with a 100-epoch cap (CNN) or 150 (Swin).
+All models train with SGD (momentum 0.9, weight decay $10^{-4}$, batch size 8), with early stopping on validation Dice and consistent augmentation and ImageNet normalization. CNN encoders use learning rate $0.01$ with step decay ($\gamma=0.1$ at epoch 30); pretrained Swin uses $10^{-4}$ with cosine annealing. On \textbf{PanNuke}, patience is 15; on \textbf{MoNuSeg}, patience is 20 with a 100-epoch cap (CNN) or 150 (Swin).
 
 %% ============================================================================
 \section{Experiments and Results}
@@ -134,6 +134,7 @@ augmentation, optimizer, and decoder fixed so that only the encoder varies. Metr
 \noindent\textbf{Research questions.} We address five questions: encoder family (Q1) and the effect of ImageNet pretraining (Q2) on PanNuke; whether the CNN advantage holds in the low-data regime and a VGG encoder reaches MedT's published performance (Q3) on MoNuSeg; whether residual shortcuts or Dice loss help at four encoder stages (Q4); and whether inference cost matches the lightweight-deployment framing (Q5).
 
 \subsection{PanNuke Results}
+\label{sec:pannuke_results}
 
 Table~\ref{tab:pannuke_results} summarizes results on PanNuke fold3; all learned models substantially exceed the classical Otsu baseline. VGG and ResNet produce nearly identical results (0.854 vs.\ 0.853 Dice): the
 paired difference is 0.002~Dice (95\% CI $[0.001, 0.002]$), reproducible across
@@ -210,12 +211,12 @@ VGG (ours, 37 imgs) & \textbf{0.794}\,(0.011) & \textbf{0.660}\,(0.015) & 34.0M 
 
 \subsection{Residual Connections and Loss (Q4)}
 
-VGG and ResNet produce nearly identical PanNuke results (0.854 vs.\ 0.853 Dice):
+The VGG--ResNet result of Section~\ref{sec:pannuke_results} is unsurprising:
 residual connections matter mainly in \emph{deep} networks~\cite{he2016resnet}, and
 at four stages neither suffers gradient degradation, so shortcuts add no benefit
-worth having---we recommend VGG for its simpler implementation. BCE and Dice loss
-are likewise near-identical (0.854 vs.\ 0.856 Dice; 0.746 vs.\ 0.748 IoU). Both gaps
-fall below the 0.005~Dice we treat as material, so we rank neither. With moderate foreground
+worth having; we recommend VGG for its simpler implementation. BCE and Dice loss
+are likewise near-identical (0.854 vs.\ 0.856 Dice; 0.746 vs.\ 0.748 IoU), both gaps
+below the 0.005~Dice we treat as material. With moderate foreground
 density BCE is not hurt by class imbalance, and Dice helps only with very sparse
 foreground.
 
@@ -242,7 +243,7 @@ Swin-T U-Net (pretrained) & 86.8M & 18.4 & 618.8 \\
 \end{tabular}
 \end{table}
 
-Swin uses roughly $2.3\times$ the memory and $2.6\times$ the latency of VGG for no accuracy gain. A VGG U-Net fits comfortably on a consumer laptop GPU; even Swin-T already costs meaningfully more.
+Swin uses roughly $2.3\times$ the memory and $2.6\times$ the latency of VGG for no accuracy gain.
 
 \subsection{Qualitative Analysis}
 
@@ -271,7 +272,7 @@ Several limitations bound these conclusions. Tables~\ref{tab:pannuke_results} an
 \section{Conclusion}
 %% ============================================================================
 
-We compared CNN and transformer encoders for nucleus segmentation under real-world resource constraints. In a shared U-Net on PanNuke and MoNuSeg, a from-scratch VGG encoder (34M parameters) outperforms pretrained Swin on both and reaches published MedT-level performance on MoNuSeg (0.794 vs.\ 0.796 Dice, a rough equivalence given protocol differences)---a margin consistent across both data scales and matching our hypothesized skip-connection-resolution mechanism. For pipelines with tens of annotated images and single-GPU infrastructure, a VGG U-Net encoder is thus the strongest of the three encoders we compare; transformers need large-scale pretraining or far more data to match it.
+We compared CNN and transformer encoders for nucleus segmentation under real-world resource constraints. In a shared U-Net on PanNuke and MoNuSeg, a from-scratch VGG encoder (34M parameters) outperforms pretrained Swin on both and reaches published MedT-level performance on MoNuSeg (0.794 vs.\ 0.796 Dice, a rough equivalence given protocol differences)---a margin consistent across both data scales. For pipelines with tens of annotated images and single-GPU infrastructure, a VGG U-Net encoder is thus the strongest of the three encoders we compare; transformers may need far more data than these benchmarks provide to match it.
 
 \noindent\textbf{Future work.} Promising directions: a resolution-matched Swin, or a CNN with equally reduced skip resolution, to separate tokenization from encoder family; pretraining matched to H\&E rather than ImageNet; the data scale at which pretrained Swin matches VGG; hybrid CNN-transformer encoders; and memory-matched comparison with foundation models (UNI, Virchow2).
 
