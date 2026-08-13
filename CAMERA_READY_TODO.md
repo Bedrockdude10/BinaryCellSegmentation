@@ -1,6 +1,44 @@
 # Authorial revisions still open
 
-Seven passages in `WhenSimpleWins.tex` need rewriting rather than number
+## Required vs optional, against the rebuttal
+
+Mapped to the numbered commitments in the OpenReview author response. "Required"
+means the rebuttal contains an explicit "we will …" that the paper does not yet
+satisfy.
+
+| item | where | rebuttal commitment | status |
+|---|---|---|---|
+| **A1** | §4.1 | P3: scope attribution to ImageNet pretraining; mechanism believed, not isolated | **REQUIRED** |
+| **A2** | Discussion | P3, same | **REQUIRED** |
+| **A3** | Limitations | P4 (variance) **and** P2 ("did not sweep learning rates … will state that as a limitation") | **REQUIRED** |
+| **A5** | abstract | P5: scope "lightweight" | **REQUIRED** |
+| **A6** | abstract | P5: "fraction of the parameter count" holds vs Swin-T, not MedT — "we will correct it" | **REQUIRED** |
+| **A8** | §4.2 | P4: withdraw "widening as data shrinks" | **REQUIRED** |
+| **A9** | Conclusion | P5: withdraw "strongest lightweight option" | **REQUIRED** |
+| **A10** | Future work | P3: name a resolution-matched Swin / domain-matched pretraining source | **REQUIRED** |
+| A4 | Table 3 | none — P5 quotes the M3 numbers approvingly, so keeping them satisfies it | optional |
+| A7 | Fig 1 caption | none — the commitment was legibility, already done | optional, advisable |
+
+Already satisfied, no action:
+
+* **P1** MedT non-parity stated at the point of comparison — §4.2 already says the
+  comparison is not strictly controlled and reads it only as VGG *reaching*
+  MedT-level Dice.
+* **P4** multi-seed mean ± SD in Tables 1 and 2 — done.
+* **Fig 1** background removed, contrast raised — done.
+
+Two defects I introduced and have since fixed, listed for the record:
+
+* §4.2 briefly read "statistically indistinguishable from MedT's published
+  0.796" — a parity claim, which P1 explicitly promised not to make, and
+  untestable against a single published value with no variance. Now reads "close
+  to … but not comparable to it on equal terms".
+* The Conclusion still said VGG and MedT were "both 0.796 Dice". Now 0.794
+  vs. 0.796.
+
+---
+
+Ten passages in `WhenSimpleWins.tex` need rewriting rather than number
 substitution. Each is marked in place with a `TODO(camera-ready)` or
 `TODO(authorial …)` comment carrying the measured facts, so you can work through
 them in the file. Find them all with:
@@ -137,3 +175,24 @@ the caption — otherwise it is cherry-picking.
   addressed in the rebuttal and not a numbers question.
 * The abstract says PanNuke has "~5K training patches"; fold1 is 2656 (5179
   counting fold2 as validation). Pre-existing, unrelated to the re-run.
+
+
+## A8 — §4.2, "widening as data shrinks" *(line ~196)* — REQUIRED
+
+Rebuttal point 4: *"Sec. 4.2's 'widening as data shrinks' withdrawn, since our gap
+is comparable at both data scales."* The parenthetical is still there. Confirmed at
+n=5: PanNuke gap 0.030, MoNuSeg 0.036, MoNuSeg pooled SD 0.0093 — not resolvably
+different, so the withdrawal is correct.
+
+## A9 — Conclusion, "strongest lightweight option" *(line ~304)* — REQUIRED
+
+Rebuttal point 5: *"withdraw the Conclusion's 'strongest lightweight option.'"*
+Still present. Same phrase as A5 in the abstract; fix both together.
+
+## A10 — Future work *(line ~309)* — REQUIRED
+
+Rebuttal point 3: *"A resolution-matched Swin, or a domain-matched pretraining
+source, would settle the attribution, and we will name it as future work."* The
+Future work list names the data-scale question, hybrid encoders and
+memory-matched foundation-model comparison — but neither of the two promised
+items. Add both.

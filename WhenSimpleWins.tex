@@ -191,9 +191,14 @@ VGG & BCE & 0.854 $\pm$ 0.000 & 0.746 $\pm$ 0.000 & 51.8 $\pm$ 2.6 & 34.0M \\
 \subsection{MoNuSeg Results}
 \label{sec:monuseg_results}
 
-Table~\ref{tab:monuseg_results} shows MoNuSeg test results (14 images, per-image averaged Dice), answering Q3. VGG reaches Dice~0.794~$\pm$~0.011, statistically indistinguishable from MedT's
-published 0.796, and outperforms pretrained Swin by 3.6~points (0.758~$\pm$~0.007;
-paired difference 0.036, 95\% CI $[0.021, 0.052]$). The MedT comparison is not strictly controlled (different training-set size and input protocol; see Limitations), so we read it only as VGG \emph{reaching} MedT-level Dice. That caveat is confined to this cross-paper anchor: VGG, ResNet, and Swin share the identical 37-image set and protocol, so our controlled VGG-over-Swin result (widening as data shrinks) is unaffected.
+Table~\ref{tab:monuseg_results} shows MoNuSeg test results (14 images, per-image averaged Dice), answering Q3. VGG reaches Dice~0.794~$\pm$~0.011, close to MedT's published 0.796 but
+not comparable to it on equal terms, and outperforms pretrained Swin by 3.6~points (0.758~$\pm$~0.007;
+paired difference 0.036, 95\% CI $[0.021, 0.052]$). The MedT comparison is not strictly controlled (different training-set size and input protocol; see Limitations), so we read it only as VGG \emph{reaching} MedT-level Dice. That caveat is confined to this cross-paper anchor: VGG, ResNet, and Swin share the identical 37-image set and protocol, so our controlled VGG-over-Swin result
+% TODO(authorial A8, REQUIRED): rebuttal point 4 promised "Sec. 4.2's 'widening as
+% data shrinks' withdrawn, since our gap is comparable at both data scales". The
+% parenthetical below is that phrase and must go. Confirmed at n=5: PanNuke gap
+% 0.030, MoNuSeg 0.036, MoNuSeg pooled SD 0.0093 -- not resolvably different.
+(widening as data shrinks) is unaffected.
 
 \begin{table}[t]
 \centering
@@ -297,8 +302,15 @@ Several limitations bound these conclusions. All results are single runs without
 \section{Conclusion}
 %% ============================================================================
 
-We compared CNN and transformer encoders for nucleus segmentation under real-world resource constraints. In a shared U-Net on PanNuke and MoNuSeg, a from-scratch VGG encoder (34M parameters) outperforms pretrained Swin on both and reaches published MedT-level performance on MoNuSeg (both 0.796 Dice, a rough equivalence given protocol differences)---a margin consistent across both data scales and matching our hypothesized skip-connection-resolution mechanism. For pipelines with tens of annotated images and single-GPU infrastructure, a VGG U-Net encoder is thus the strongest lightweight option; transformers need large-scale pretraining or far more data to match it.
+We compared CNN and transformer encoders for nucleus segmentation under real-world resource constraints. In a shared U-Net on PanNuke and MoNuSeg, a from-scratch VGG encoder (34M parameters) outperforms pretrained Swin on both and reaches published MedT-level performance on MoNuSeg (0.794 vs.\ 0.796 Dice, a rough equivalence given protocol differences)---a margin consistent across both data scales and matching our hypothesized skip-connection-resolution mechanism. For pipelines with tens of annotated images and single-GPU infrastructure, % TODO(authorial A9, REQUIRED): rebuttal point 5 promised to "withdraw the
+% Conclusion's 'strongest lightweight option'". This is that phrase. R-Ttru and
+% R-1jr8 both objected that three encoders is too narrow a basis, with MobileNet /
+% EfficientNet / ConvNeXt-Tiny untested. The same phrase is in the abstract (A5).
+a VGG U-Net encoder is thus the strongest lightweight option; transformers need large-scale pretraining or far more data to match it.
 
+% TODO(authorial A10, REQUIRED): rebuttal point 3 promised "A resolution-matched
+% Swin, or a domain-matched pretraining source, would settle the attribution, and
+% we will name it as future work." Neither is named below -- add both.
 \noindent\textbf{Future work.} Promising directions: the data scale at which pretrained Swin matches VGG; hybrid CNN-transformer encoders; and memory-matched comparison with foundation models (UNI, Virchow2).
 
 %
