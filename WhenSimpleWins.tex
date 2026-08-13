@@ -30,7 +30,16 @@
 \maketitle
 %
 \begin{abstract}
-For nucleus segmentation pipelines built without large annotated datasets or high-memory GPU infrastructure, a simple VGG U-Net encoder matches purpose-built transformer alternatives at a fraction of the parameter count. We present a controlled comparison of VGG-style, ResNet-style, and Swin Transformer encoders within a shared U-Net framework, evaluated on PanNuke (${\sim}$5K training patches, 19 tissue types) and MoNuSeg (37 training whole-slide images). On PanNuke, VGG (Dice~0.854) matches ResNet (0.853) to within 0.002~Dice and outperforms pretrained Swin by 3.0~Dice points (0.824). On MoNuSeg, VGG (0.794) reaches published MedT-level performance---a transformer designed specifically for small medical datasets---while outperforming pretrained Swin by 3.6~Dice points (0.758). VGG is also the fastest and most memory-efficient of the learned models we test, making it Pareto-dominant over Swin-T at inference. In the deployment scenarios motivating this work---edge microscopy, veterinary and rare-disease research, and non-H\&E protocols where foundation-model pretraining misaligns---lightweight from-scratch architectures remain the practical choice, and a simple VGG encoder is the strongest option in that space.
+For nucleus segmentation pipelines built without large annotated datasets or high-memory GPU infrastructure, % TODO(authorial A6): per rebuttal point 5, "at a fraction of the parameter count"
+% holds against Swin-T (34.0M vs 86.8M) but NOT against MedT, which is 1.4M --
+% smaller than VGG. You committed to correcting this. Name Swin-T explicitly, or
+% drop the parameter clause.
+a simple VGG U-Net encoder matches purpose-built transformer alternatives at a fraction of the parameter count. We present a controlled comparison of VGG-style, ResNet-style, and Swin Transformer encoders within a shared U-Net framework, evaluated on PanNuke (${\sim}$5K training patches, 19 tissue types) and MoNuSeg (37 training whole-slide images). On PanNuke, VGG (Dice~0.854) matches ResNet (0.853) to within 0.002~Dice and outperforms pretrained Swin by 3.0~Dice points (0.824). On MoNuSeg, VGG (0.794) reaches published MedT-level performance---a transformer designed specifically for small medical datasets---while outperforming pretrained Swin by 3.6~Dice points (0.758). VGG is also the fastest and most memory-efficient of the learned models we test, making it Pareto-dominant over Swin-T at inference. In the deployment scenarios motivating this work---edge microscopy, veterinary and rare-disease research, and non-H\&E protocols where foundation-model pretraining misaligns---% TODO(authorial A5): "the strongest option in that space" is the abstract twin of
+% the Conclusion phrase you withdrew in rebuttal point 5. R-Ttru and R-1jr8 both
+% objected that you test three encoders and omit MobileNet / EfficientNet /
+% ConvNeXt-Tiny, so "strongest" is not supported. Scope to what you measured:
+% strongest OF THE THREE ENCODERS TESTED.
+lightweight from-scratch architectures remain the practical choice, and a simple VGG encoder is the strongest option in that space.
 
 \keywords{Nucleus segmentation \and Histopathology \and U-Net \and Lightweight models \and Low-data.}
 \end{abstract}
@@ -206,6 +215,16 @@ VGG (ours, 37 imgs) & \textbf{0.794} $\pm$ \textbf{0.011} & \textbf{0.660} $\pm$
 \centering
 \includegraphics[width=\textwidth]{figures/monuseg_comparison_row1_seed42_solid.png}
 \caption{Qualitative comparison on a representative dense MoNuSeg test region. Left to right: input H\&E patch, ground-truth nucleus overlay (green), VGG prediction, and pretrained Swin prediction (per-image Dice annotated in each prediction cell). VGG delineates nuclear boundaries more tightly; Swin produces smoother masks with less precise boundaries.}
+% TODO(authorial A7): this caption claim is now weaker on this slide. The
+% regenerated figure (seed 42) annotates VGG 0.793 vs Swin 0.783 -- a 0.010 gap
+% against Table 2's 0.036 mean, so the region under-represents the effect.
+% Options: (a) keep and soften the wording; (b) switch to
+% figures/monuseg_comparison_row1_seed42_errormap.png, which shows FP/FN directly
+% and supports the boundary claim better, but needs the column description
+% rewritten (columns become per-pixel agreement, not predictions);
+% (c) pick a more representative slide -- but say so in the caption if you do,
+% since choosing the region that best shows the effect is otherwise
+% cherry-picking. The three candidate renders are all in figures/.
 \label{fig:monuseg_qualitative}
 \end{figure}
 
