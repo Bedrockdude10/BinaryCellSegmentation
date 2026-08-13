@@ -1,4 +1,4 @@
-% MICCAI 2026 submission -- anonymized, Springer LNCS template (llncs.cls).
+% MICCAI 2026 MSB EMERGE camera-ready, Springer LNCS template (llncs.cls).
 % Based on the official "MICCAI2026-main conference paper template".
 % Source paper: When Simple Wins (formerly final_report.tex, NeurIPS 2024 style).
 \documentclass[runningheads]{llncs}
@@ -20,12 +20,10 @@
 \title{When Simple Wins: Lightweight CNN Encoders for Resource-Constrained Nucleus Segmentation}
 \titlerunning{Lightweight CNN Encoders for Nucleus Segmentation}
 %
-% The author section is anonymized for double-blind review and must not be
-% removed or modified (except to insert the paper ID once assigned by CMT).
-\author{Anonymized Authors}
-\authorrunning{Anonymized Author et al.}
-\institute{Anonymized Affiliations \\
-    \email{email@anonymized.com}}
+\author{Danny Rollo}
+\authorrunning{D. Rollo}
+\institute{Northeastern University, Boston MA, USA \\
+    \email{rollo.l@northeastern.edu}}
 %
 \maketitle
 %
@@ -49,7 +47,7 @@ While this resolution-vs-inductive-bias tradeoff is qualitatively well understoo
 
 \noindent\textbf{Contributions.} (1)~A controlled encoder-family ablation within a shared U-Net framework on PanNuke and MoNuSeg; (2)~evidence that a from-scratch VGG encoder matches MedT (a transformer purpose-built for small medical datasets) on MoNuSeg while beating pretrained Swin on both; (3)~inference-cost measurements showing VGG is Pareto-dominant over Swin-T in the lightweight regime.
 
-\noindent\textbf{Code and dependencies.} We implement the U-Net, training loop, evaluation, and data loaders from scratch in PyTorch (\texttt{torchvision} for I/O and augmentation); the Swin encoder loads a \texttt{timm}~\cite{rw2019timm} backbone with pretrained ImageNet weights, PanNuke comes from HuggingFace \texttt{datasets}, MoNuSeg from the MICCAI 2018 challenge, and Otsu from \texttt{scikit-image}. Code, configurations, trained checkpoints, and exact dependency versions are available (anonymized) at \url{https://anonymous.4open.science/r/BinaryCellSegmentation-A99C/}.
+\noindent\textbf{Code and dependencies.} We implement the U-Net, training loop, evaluation, and data loaders from scratch in PyTorch (\texttt{torchvision} for I/O and augmentation); the Swin encoder loads a \texttt{timm}~\cite{rw2019timm} backbone with pretrained ImageNet weights, PanNuke comes from HuggingFace \texttt{datasets}, MoNuSeg from the MICCAI 2018 challenge, and Otsu from \texttt{scikit-image}. Code, configurations, trained checkpoints, and exact dependency versions are available at \url{https://github.com/Bedrockdude10/BinaryCellSegmentation}.
 
 %% ============================================================================
 \section{Related Work}
