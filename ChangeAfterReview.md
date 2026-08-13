@@ -68,6 +68,9 @@ saved alongside the corresponding original run, field for field.
   comparable at both data scales".
 - VGG and ResNet are no longer ranked. They differ by 0.002 Dice, reproducible
   across seeds but below the 0.005 Dice we treat as material.
+- Limitations now states that at ~34M parameters VGG is not compact, and that we
+  cannot place it among genuinely compact encoders such as MobileNet-,
+  EfficientNet- or ConvNeXt-Tiny-based U-Nets.
 
 ## 5. MedT comparison
 *(Reviewers K9Em and 1jr8; author response point 1)*

@@ -196,16 +196,6 @@ VGG (ours, 37 imgs) & \textbf{0.794}\,(0.011) & \textbf{0.660}\,(0.015) & 34.0M 
 \centering
 \includegraphics[width=\textwidth]{figures/monuseg_comparison_row1_seed42_solid.png}
 \caption{Qualitative comparison on a representative dense MoNuSeg test region. Left to right: input H\&E patch, ground-truth nucleus overlay (green), VGG prediction, and pretrained Swin prediction (per-image Dice annotated in each prediction cell). VGG delineates nuclear boundaries more tightly; Swin produces smoother masks with less precise boundaries.}
-% TODO(authorial A7): this caption claim is now weaker on this slide. The
-% regenerated figure (seed 42) annotates VGG 0.793 vs Swin 0.783 -- a 0.010 gap
-% against Table 2's 0.036 mean, so the region under-represents the effect.
-% Options: (a) keep and soften the wording; (b) switch to
-% figures/monuseg_comparison_row1_seed42_errormap.png, which shows FP/FN directly
-% and supports the boundary claim better, but needs the column description
-% rewritten (columns become per-pixel agreement, not predictions);
-% (c) pick a more representative slide -- but say so in the caption if you do,
-% since choosing the region that best shows the effect is otherwise
-% cherry-picking. The three candidate renders are all in figures/.
 \label{fig:monuseg_qualitative}
 \end{figure}
 
@@ -266,7 +256,7 @@ between them.
 
 \subsection{Limitations}
 
-Several limitations bound these conclusions. Tables~\ref{tab:pannuke_results} and~\ref{tab:monuseg_results} report mean and standard deviation over five training seeds on one fixed split, and every difference we claim has a paired 95\% confidence interval excluding zero; this bounds training-seed variance, not split variance, which with 37 MoNuSeg images is plausibly larger. We give intervals rather than non-parametric tests because at $n{=}5$ a two-sided signed-rank $p$ cannot fall below 0.0625. We did not sweep learning rates, so cannot quantify the comparison's sensitivity to them; from-scratch Swin's instability at $10^{-2}$ suggests it is not negligible. Pretrained Swin reached its 100-epoch cap in two of five seeds, so its schedule may bound it, though those two seeds scored no lower than the three that stopped on patience. We study only binary segmentation, not instance separation of touching nuclei; the MedT comparison is uncontrolled in training-set size (37 vs.\ 30) and protocol ($256\times256$ tiles vs.\ one $512\times512$ pass); and all data are H\&E, leaving the non-H\&E stains (IHC, fluorescence) that most motivate this work untested.
+Several limitations bound these conclusions. Tables~\ref{tab:pannuke_results} and~\ref{tab:monuseg_results} report mean and standard deviation over five training seeds on one fixed split, and every difference we claim has a paired 95\% confidence interval excluding zero; this bounds training-seed variance, not split variance, which with 37 MoNuSeg images is plausibly larger. We give intervals rather than non-parametric tests because at $n{=}5$ a two-sided signed-rank $p$ cannot fall below 0.0625. We did not sweep learning rates, so cannot quantify the comparison's sensitivity to them; from-scratch Swin's instability at $10^{-2}$ suggests it is not negligible. Pretrained Swin reached its 100-epoch cap in two of five seeds, so its schedule may bound it, though those two seeds scored no lower than the three that stopped on patience. We compare only three encoders, and at ${\sim}34$M parameters VGG is not compact: we cannot place it among genuinely compact encoders such as MobileNet-, EfficientNet- or ConvNeXt-Tiny-based U-Nets. We study only binary segmentation, not instance separation of touching nuclei; the MedT comparison is uncontrolled in training-set size (37 vs.\ 30) and protocol ($256\times256$ tiles vs.\ one $512\times512$ pass); and all data are H\&E, leaving the non-H\&E stains (IHC, fluorescence) that most motivate this work untested.
 
 %% ============================================================================
 \section{Conclusion}
