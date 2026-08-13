@@ -17,10 +17,10 @@
 # 'src.data'` on the compute node.
 set -euo pipefail
 
-HOST="${EXPLORER_HOST:-rollo.l@explorer.northeastern.edu}"
+HOST="${EXPLORER_HOST:?set EXPLORER_HOST, e.g. user@cluster.example.edu}"
 # Large transfers go through the transfer node; login-node rsync of multi-GB
 # files gets reset mid-stream. Same shared home, so only the hostname differs.
-XFER="${EXPLORER_XFER:-rollo.l@xfer.discovery.neu.edu}"
+XFER="${EXPLORER_XFER:-$HOST}"
 REPO_DEST="~/BinaryCellSegmentation"
 DATA_DEST="~/nucseg_data"
 HF_DEST="~/hf_cache/hub"

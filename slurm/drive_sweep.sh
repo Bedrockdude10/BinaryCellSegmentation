@@ -16,7 +16,7 @@
 # Progress is appended to slurm/drive_sweep.log on this machine.
 set -uo pipefail
 
-HOST="${EXPLORER_HOST:-rollo.l@explorer.northeastern.edu}"
+HOST="${EXPLORER_HOST:?set EXPLORER_HOST, e.g. user@cluster.example.edu}"
 REPO="~/BinaryCellSegmentation"
 MAX_ROUNDS="${1:-6}"
 EXPECTED=35

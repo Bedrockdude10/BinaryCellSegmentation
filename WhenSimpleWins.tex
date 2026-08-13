@@ -30,7 +30,7 @@
 \maketitle
 %
 \begin{abstract}
-For nucleus segmentation pipelines built without large annotated datasets or high-memory GPU infrastructure, a simple VGG U-Net encoder matches purpose-built transformer alternatives at a fraction of the parameter count. We present a controlled comparison of VGG-style, ResNet-style, and Swin Transformer encoders within a shared U-Net framework, evaluated on PanNuke (${\sim}$5K training patches, 19 tissue types) and MoNuSeg (37 training whole-slide images). On PanNuke, VGG (Dice~0.851) matches ResNet (0.849) within single-seed noise and outperforms pretrained Swin by 4.9~Dice points (0.802). On MoNuSeg, VGG (0.796) reaches published MedT-level performance---a transformer designed specifically for small medical datasets---while outperforming pretrained Swin by 4.6~Dice points (0.750). VGG is also the fastest and most memory-efficient of the learned models we test, making it Pareto-dominant over Swin-T at inference. In the deployment scenarios motivating this work---edge microscopy, veterinary and rare-disease research, and non-H\&E protocols where foundation-model pretraining misaligns---lightweight from-scratch architectures remain the practical choice, and a simple VGG encoder is the strongest option in that space.
+For nucleus segmentation pipelines built without large annotated datasets or high-memory GPU infrastructure, a simple VGG U-Net encoder matches purpose-built transformer alternatives at a fraction of the parameter count. We present a controlled comparison of VGG-style, ResNet-style, and Swin Transformer encoders within a shared U-Net framework, evaluated on PanNuke (${\sim}$5K training patches, 19 tissue types) and MoNuSeg (37 training whole-slide images). On PanNuke, VGG (Dice~0.854) matches ResNet (0.853) to within 0.002~Dice and outperforms pretrained Swin by 3.0~Dice points (0.824). On MoNuSeg, VGG (0.794) reaches published MedT-level performance---a transformer designed specifically for small medical datasets---while outperforming pretrained Swin by 3.6~Dice points (0.758). VGG is also the fastest and most memory-efficient of the learned models we test, making it Pareto-dominant over Swin-T at inference. In the deployment scenarios motivating this work---edge microscopy, veterinary and rare-disease research, and non-H\&E protocols where foundation-model pretraining misaligns---lightweight from-scratch architectures remain the practical choice, and a simple VGG encoder is the strongest option in that space.
 
 \keywords{Nucleus segmentation \and Histopathology \and U-Net \and Lightweight models \and Low-data.}
 \end{abstract}
@@ -127,17 +127,42 @@ All models train with SGD (momentum 0.9, weight decay $10^{-4}$, batch size 8), 
 \label{sec:experiments}
 %% ============================================================================
 
-\noindent\textbf{Testbed.} All experiments run on an Apple~M3 with the PyTorch MPS backend (unified memory, no discrete GPU), batch size 8, and the recipe of Section~\ref{sec:training_details}, using the shared framework of Section~\ref{sec:architecture} with only the encoder swapped. Data pipeline, augmentation, optimizer, and decoder are fixed to isolate backbone choice. Metrics are Dice and IoU on the held-out splits (PanNuke fold3; MoNuSeg 14-image test set).
+% TODO(camera-ready): Table 3 still holds the Apple M3 inference numbers. If you
+% switch it to the V100 measurement in runs/_bench/, say so here as well.
+\noindent\textbf{Testbed.} Accuracy results are averaged over 5 training seeds, all
+run on a single NVIDIA Tesla~V100-SXM2-32GB in fp32; inference cost
+(Table~\ref{tab:inference_cost}) is measured on an Apple~M3 with the PyTorch MPS
+backend (unified memory, no discrete GPU). Training uses batch size 8 and the recipe of Section~\ref{sec:training_details}, using the shared framework of Section~\ref{sec:architecture} with only the encoder swapped. Data pipeline, augmentation, optimizer, and decoder are fixed to isolate backbone choice. Metrics are Dice and IoU on the held-out splits (PanNuke fold3; MoNuSeg 14-image test set).
 
 \noindent\textbf{Research questions.} We address five questions: encoder family (Q1) and the effect of ImageNet pretraining (Q2) on PanNuke; whether the CNN advantage holds in the low-data regime and a VGG encoder reaches MedT's published performance (Q3) on MoNuSeg; whether residual shortcuts or Dice loss help at four encoder stages (Q4); and whether inference cost matches the lightweight-deployment framing (Q5).
 
 \subsection{PanNuke Results}
 
-Table~\ref{tab:pannuke_results} summarizes results on PanNuke fold3; all learned models substantially exceed the classical Otsu baseline. VGG and ResNet produce essentially identical results (0.851 vs.\ 0.849 Dice)---a 0.002 difference well within run-to-run noise for single-seed training (differences below ${\sim}0.005$ Dice are not meaningful). Addressing Q1--Q2: Swin underperforms both CNN encoders by roughly 5~Dice points even with pretraining. From-scratch Swin barely exceeds Otsu (0.590 vs.\ 0.482), confirming transformers lack sufficient inductive bias at this scale; ImageNet pretraining lifts it by 0.212 to 0.802 but still does not reach CNN level, so the residual gap is architectural rather than a matter of weights. This 0.049 Dice gap is an order of magnitude larger than the BCE-vs-Dice variation for a fixed encoder ($\leq 0.001$ Dice), indicating a genuine architectural effect rather than single-seed noise.
+Table~\ref{tab:pannuke_results} summarizes results on PanNuke fold3; all learned models substantially exceed the classical Otsu baseline. VGG and ResNet produce nearly identical results (0.854 vs.\ 0.853 Dice): the
+paired difference is 0.002~Dice (95\% CI $[0.001, 0.002]$), reproducible across
+seeds but an order of magnitude below the ${\sim}0.005$ Dice we treat as
+practically meaningful, so we do not rank them.
+% TODO(camera-ready): the two sentences below are the ONE place the new data
+% changes the argument, not just the numbers. Measured at n=5: from-scratch Swin
+% 0.825 +- 0.001 vs pretrained 0.824 +- 0.001, paired difference +0.001 Dice
+% (95% CI [+0.001,+0.002]) in favour of FROM-SCRATCH. ImageNet pretraining
+% therefore yields no benefit here, and the published "+0.212 lift" came from a
+% single from-scratch run that diverged (its per-epoch val Dice oscillated
+% 0.278/0.531/0.003/0.023/0.585...). Note this STRENGTHENS the "not a matter of
+% weights" reading: if ImageNet weights change nothing measurable, the residual
+% ~0.03 gap to VGG cannot be about those weights. Rewrite in your own voice;
+% do not write "pretraining significantly hurts" -- 0.001 Dice is immaterial.
+Addressing Q1--Q2: Swin underperforms both CNN encoders by roughly 3~Dice points,
+with or without ImageNet pretraining. This 0.030 Dice gap (paired, 95\% CI
+$[0.029, 0.031]$) is an order of magnitude larger than the BCE-vs-Dice variation
+for a fixed encoder (0.002 Dice), indicating a genuine architectural effect
+rather than seed noise.
 
 \begin{table}[t]
 \centering
-\caption{Test results on PanNuke fold3. Best result in \textbf{bold}.}
+\caption{Test results on PanNuke fold3, mean $\pm$ standard deviation over 5
+training seeds ($n{=}5$; the Otsu baseline is deterministic). Epochs is the
+early-stopping epoch. Best result in \textbf{bold}.}
 \label{tab:pannuke_results}
 \begin{tabular}{@{}llcccr@{}}
 \toprule
@@ -145,11 +170,11 @@ Table~\ref{tab:pannuke_results} summarizes results on PanNuke fold3; all learned
 \midrule
 Otsu (classical) & --- & 0.482 & 0.349 & --- & 0 \\
 \midrule
-Swin-T (scratch) & BCE & 0.590 & 0.442 & 20 & 86.8M \\
-Swin-T (pretrained) & BCE & 0.802 & 0.676 & 92 & 86.8M \\
-ResNet & BCE & 0.849 & 0.740 & 47 & 37.5M \\
-VGG & Dice & 0.851 & 0.743 & 53 & 34.0M \\
-VGG & BCE & \textbf{0.851} & \textbf{0.744} & 48 & 34.0M \\
+Swin-T (scratch) & BCE & 0.825 $\pm$ 0.001 & 0.703 $\pm$ 0.002 & 69.0 $\pm$ 9.4 & 86.8M \\
+Swin-T (pretrained) & BCE & 0.824 $\pm$ 0.001 & 0.701 $\pm$ 0.001 & 96.2 $\pm$ 5.0 & 86.8M \\
+ResNet & BCE & 0.853 $\pm$ 0.000 & 0.743 $\pm$ 0.001 & 49.8 $\pm$ 3.8 & 37.5M \\
+VGG & Dice & \textbf{0.856} $\pm$ \textbf{0.001} & \textbf{0.748} $\pm$ \textbf{0.001} & 84.8 $\pm$ 17.5 & 34.0M \\
+VGG & BCE & 0.854 $\pm$ 0.000 & 0.746 $\pm$ 0.000 & 51.8 $\pm$ 2.6 & 34.0M \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -157,33 +182,44 @@ VGG & BCE & \textbf{0.851} & \textbf{0.744} & 48 & 34.0M \\
 \subsection{MoNuSeg Results}
 \label{sec:monuseg_results}
 
-Table~\ref{tab:monuseg_results} shows MoNuSeg test results (14 images, per-image averaged Dice), answering Q3. VGG reaches Dice~0.796, equivalent to MedT's published number, and outperforms pretrained Swin by 4.6~points (0.750). The MedT comparison is not strictly controlled (different training-set size and input protocol; see Limitations), so we read it only as VGG \emph{reaching} MedT-level Dice. That caveat is confined to this cross-paper anchor: VGG, ResNet, and Swin share the identical 37-image set and protocol, so our controlled VGG-over-Swin result (widening as data shrinks) is unaffected.
+Table~\ref{tab:monuseg_results} shows MoNuSeg test results (14 images, per-image averaged Dice), answering Q3. VGG reaches Dice~0.794~$\pm$~0.011, statistically indistinguishable from MedT's
+published 0.796, and outperforms pretrained Swin by 3.6~points (0.758~$\pm$~0.007;
+paired difference 0.036, 95\% CI $[0.021, 0.052]$). The MedT comparison is not strictly controlled (different training-set size and input protocol; see Limitations), so we read it only as VGG \emph{reaching} MedT-level Dice. That caveat is confined to this cross-paper anchor: VGG, ResNet, and Swin share the identical 37-image set and protocol, so our controlled VGG-over-Swin result (widening as data shrinks) is unaffected.
 
 \begin{table}[t]
 \centering
-\caption{Test results on MoNuSeg (14 test images). Dice computed per image, averaged over the test set. MedT results are published figures (30 training images, $512\times512$ input); ours use 37 training images, $256\times256$ patches. Best result in \textbf{bold}.}
+\caption{Test results on MoNuSeg (14 test images). Dice computed per image, averaged over the test set. MedT results are published figures (30 training images, $512\times512$ input); ours use 37 training images, $256\times256$ patches, reported as mean $\pm$
+standard deviation over 5 training seeds ($n{=}5$). Best result in \textbf{bold}.}
 \label{tab:monuseg_results}
 \begin{tabular}{@{}lccc@{}}
 \toprule
 \textbf{Model} & \textbf{Dice} $\uparrow$ & \textbf{IoU} $\uparrow$ & \textbf{Params} \\
 \midrule
 MedT~\cite{valanarasu2021medt} (published, 30 imgs) & 0.796 & 0.662 & 1.4M \\
-Swin-T (pretrained, ours, 37 imgs) & 0.750 & 0.604 & 86.8M \\
-VGG (ours, 37 imgs) & \textbf{0.796} & \textbf{0.663} & 34.0M \\
+Swin-T (pretrained, ours, 37 imgs) & 0.758 $\pm$ 0.007 & 0.613 $\pm$ 0.008 & 86.8M \\
+VGG (ours, 37 imgs) & \textbf{0.794} $\pm$ \textbf{0.011} & \textbf{0.660} $\pm$ \textbf{0.015} & 34.0M \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\textwidth]{figures/monuseg_comparison_row1.png}
+\includegraphics[width=\textwidth]{figures/monuseg_comparison_row1_seed42_solid.png}
 \caption{Qualitative comparison on a representative dense MoNuSeg test region. Left to right: input H\&E patch, ground-truth nucleus overlay (green), VGG prediction, and pretrained Swin prediction (per-image Dice annotated in each prediction cell). VGG delineates nuclear boundaries more tightly; Swin produces smoother masks with less precise boundaries.}
 \label{fig:monuseg_qualitative}
 \end{figure}
 
 \subsection{Residual Connections and Loss (Q4)}
 
-VGG and ResNet produce nearly identical PanNuke results (0.851 vs.\ 0.849 Dice): residual connections matter mainly in \emph{deep} networks~\cite{he2016resnet}, and at four stages neither suffers gradient degradation, so shortcuts add no benefit---we recommend VGG for its simpler implementation. BCE and Dice loss are likewise near-identical (0.851 vs.\ 0.851 Dice; 0.744 vs.\ 0.743 IoU); with moderate foreground density BCE is not hurt by class imbalance, and Dice helps only with very sparse foreground.
+VGG and ResNet produce nearly identical PanNuke results (0.854 vs.\ 0.853 Dice):
+residual connections matter mainly in \emph{deep} networks~\cite{he2016resnet}, and
+at four stages neither suffers gradient degradation, so shortcuts add no benefit
+worth having---we recommend VGG for its simpler implementation. BCE and Dice loss
+are likewise near-identical (0.854 vs.\ 0.856 Dice; 0.746 vs.\ 0.748 IoU). Both
+differences are reproducible across seeds yet below 0.005~Dice, so we report them
+as measurable but immaterial rather than as rankings. With moderate foreground
+density BCE is not hurt by class imbalance, and Dice helps only with very sparse
+foreground.
 
 \subsection{Inference Cost}
 \label{sec:inference_cost}
@@ -217,10 +253,25 @@ Qualitatively (Fig.~\ref{fig:monuseg_qualitative}), Swin's $4\times4$ tokenizati
 
 \noindent\textbf{Implications for resource-constrained deployment.} Foundation models are memory-hungry and, depending on hardware, may be unusable; they are typically limited to linear probing rather than full fine-tuning~\cite{tizhoosh2025why}. A VGG U-Net (${\sim}34$M parameters) instead trains overnight on a single 8GB consumer GPU with no external data---directly actionable for the edge-microscopy, veterinary, and non-H\&E settings~\cite{xiao2025review,neal2025artificial} that motivate this work.
 
+% TODO(camera-ready): REWRITE. At n=5 ImageNet pretraining closes NOTHING: from-
+% scratch 0.825 +- 0.001 vs pretrained 0.824 +- 0.001. The "+0.212 Dice" figure
+% came from one diverging from-scratch run. The skip-connection mechanism you
+% attribute the gap to is unaffected and is now supported more directly, since
+% the weights demonstrably make no difference. Gap to VGG is 0.030, not 0.049.
 \noindent\textbf{The role of pretraining.} Pretraining does not fail on Swin---it closes most of the Otsu-to-CNN gap ($+$0.212 Dice)---but cannot close the final 0.049 to VGG, which we attribute to the skip-connection resolution bottleneck (Section~\ref{sec:intuition}): a property of the architecture, not the weights. This predicts that even domain-matched pretraining (e.g., UNI~\cite{chen2024uni}) would narrow but not close the gap---a falsifiable target for future work.
 
 \subsection{Limitations}
 
+% TODO(camera-ready): REWRITE the variance sentence -- it is now false and it is
+% the reviewers' central objection. Replacement facts: every configuration in
+% Tables 1 and 2 was re-run over 5 training seeds on one GPU model with one fixed
+% split; mean +- SD reported; comparisons paired per seed with 95% CIs; all 11
+% paired CIs on test Dice exclude zero. Remaining honest limitations: this
+% measures TRAINING-SEED variance only, on a single fixed split, so it says
+% nothing about split or dataset variance; n=5 does not support Wilcoxon
+% (its two-sided floor is p=0.0625 at n=5); and pretrained Swin reached its
+% 100-epoch cap in 2 of 5 seeds -- a 150-epoch cosine schedule lifts it to
+% 0.830 +- 0.001, still 0.025 below VGG.
 Several limitations bound these conclusions. All results are single runs without variance estimates, though the order-of-magnitude gap between architectural and loss effects in our PanNuke results is indirect evidence of stability. We study only binary segmentation, not instance separation of touching nuclei (flagged in our qualitative analysis); the MedT comparison is uncontrolled in training-set size (37 vs.\ 30) and protocol ($256\times256$ tiles vs.\ a single $512\times512$ pass); and all data are H\&E, leaving the non-H\&E stains (IHC, fluorescence) that most motivate this work untested.
 
 %% ============================================================================

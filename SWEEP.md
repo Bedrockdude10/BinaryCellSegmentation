@@ -123,7 +123,7 @@ On the cluster (Explorer). One-time setup, then launch:
 ```
 
 ```bash
-ssh rollo.l@explorer.northeastern.edu 'cd ~/BinaryCellSegmentation && sbatch slurm/preflight.sbatch'
+ssh $EXPLORER_HOST 'cd ~/BinaryCellSegmentation && sbatch slurm/preflight.sbatch'
 ```
 
 The preflight is a single-task pilot: it validates the exact allocation path,
@@ -132,11 +132,11 @@ and measures the peak memory of every configuration — for the cost of one task
 Then release seed 42 first (the reproduction gate), and only then the rest:
 
 ```bash
-ssh rollo.l@explorer.northeastern.edu 'cd ~/BinaryCellSegmentation && sbatch slurm/sweep.sbatch --seeds 42'
+ssh $EXPLORER_HOST 'cd ~/BinaryCellSegmentation && sbatch slurm/sweep.sbatch --seeds 42'
 ```
 
 ```bash
-ssh rollo.l@explorer.northeastern.edu 'cd ~/BinaryCellSegmentation && sbatch slurm/sweep.sbatch'
+ssh $EXPLORER_HOST 'cd ~/BinaryCellSegmentation && sbatch slurm/sweep.sbatch'
 ```
 
 Resubmit that last one until `--list` reports 35/35, or let the driver do it:
@@ -170,7 +170,7 @@ Table 3 is benchmarked separately, on an idle exclusive node, never while sweep
 tasks of yours are running:
 
 ```bash
-ssh rollo.l@explorer.northeastern.edu 'cd ~/BinaryCellSegmentation && sbatch slurm/bench.sbatch'
+ssh $EXPLORER_HOST 'cd ~/BinaryCellSegmentation && sbatch slurm/bench.sbatch'
 ```
 
 ### Slurm sizing
