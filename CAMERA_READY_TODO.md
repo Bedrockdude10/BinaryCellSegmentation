@@ -2,6 +2,8 @@
 
 ## Required vs optional, against the rebuttal
 
+**Status: 5 of 10 resolved.** Remaining: A1, A2, A3 (required), A4, A7 (optional).
+
 Mapped to the numbered commitments in the OpenReview author response. "Required"
 means the rebuttal contains an explicit "we will …" that the paper does not yet
 satisfy.
@@ -11,11 +13,11 @@ satisfy.
 | **A1** | §4.1 | P3: scope attribution to ImageNet pretraining; mechanism believed, not isolated | **REQUIRED** |
 | **A2** | Discussion | P3, same | **REQUIRED** |
 | **A3** | Limitations | P4 (variance) **and** P2 ("did not sweep learning rates … will state that as a limitation") | **REQUIRED** |
-| **A5** | abstract | P5: scope "lightweight" | **REQUIRED** |
-| **A6** | abstract | P5: "fraction of the parameter count" holds vs Swin-T, not MedT — "we will correct it" | **REQUIRED** |
-| **A8** | §4.2 | P4: withdraw "widening as data shrinks" | **REQUIRED** |
-| **A9** | Conclusion | P5: withdraw "strongest lightweight option" | **REQUIRED** |
-| **A10** | Future work | P3: name a resolution-matched Swin / domain-matched pretraining source | **REQUIRED** |
+| **A5** | abstract | P5: scope "lightweight" | **DONE** |
+| **A6** | abstract | P5: "fraction of the parameter count" holds vs Swin-T, not MedT — "we will correct it" | **DONE** |
+| **A8** | §4.2 | P4: withdraw "widening as data shrinks" | **DONE** |
+| **A9** | Conclusion | P5: withdraw "strongest lightweight option" | **DONE** |
+| **A10** | Future work | P3: name a resolution-matched Swin / domain-matched pretraining source | **DONE** |
 | A4 | Table 3 | none — P5 quotes the M3 numbers approvingly, so keeping them satisfies it | optional |
 | A7 | Fig 1 caption | none — the commitment was legibility, already done | optional, advisable |
 
@@ -38,7 +40,9 @@ Two defects I introduced and have since fixed, listed for the record:
 
 ---
 
-Ten passages in `WhenSimpleWins.tex` need rewriting rather than number
+**Five remain: A1, A2, A3, A4, A7.** A5, A6, A8, A9 and A10 are done — each
+executed a decision already stated in the rebuttal, so none needed new authorial
+judgement; their markers are removed. The five below need rewriting rather than number
 substitution. Each is marked in place with a `TODO(camera-ready)` or
 `TODO(authorial …)` comment carrying the measured facts, so you can work through
 them in the file. Find them all with:
