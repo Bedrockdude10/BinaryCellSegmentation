@@ -1,0 +1,233 @@
+{
+  "amp_enabled": true,
+  "best_epoch": 14,
+  "best_val_dice": 0.6143050193786621,
+  "code_hash": "4b73c3e82aff61e2cae08318d2d98e2b7e83912d327d57519d713d8192e73844",
+  "config": {
+    "data": {
+      "batch_size": 8,
+      "cache_root": "/tmp/nucseg_cache",
+      "num_workers": 4,
+      "test_split": "fold3",
+      "train_split": "fold1",
+      "val_split": "fold2"
+    },
+    "experiment": {
+      "device": "auto",
+      "name": "pannuke_swin_scratch_seed42",
+      "output_dir": "outputs",
+      "seed": 42,
+      "split_seed": 42,
+      "sweep_id": "pannuke_swin_scratch",
+      "train_seed": 42
+    },
+    "loss": "bce_logits",
+    "model": {
+      "architecture": "swin",
+      "params": {
+        "in_channels": 3,
+        "out_channels": 1
+      }
+    },
+    "optimizer": {
+      "lr": 0.01,
+      "momentum": 0.9,
+      "type": "sgd",
+      "weight_decay": 0.0001
+    },
+    "performance": {
+      "checkpoint_every_epochs": 5,
+      "num_workers": 8,
+      "persistent_workers": false,
+      "pin_memory": true,
+      "prefetch_factor": 4
+    },
+    "preprocessing": {
+      "augmentation": {
+        "horizontal_flip": true,
+        "rotation_degrees": 90,
+        "vertical_flip": true
+      },
+      "normalize": {
+        "mean": [
+          0.485,
+          0.456,
+          0.406
+        ],
+        "std": [
+          0.229,
+          0.224,
+          0.225
+        ]
+      }
+    },
+    "scheduler": {
+      "gamma": 0.1,
+      "step_size": 30,
+      "type": "step"
+    },
+    "training": {
+      "checkpoint_interval": 10,
+      "early_stopping": {
+        "metric": "dice",
+        "patience": 15
+      },
+      "epochs": 100,
+      "log_interval": 10
+    }
+  },
+  "cudnn_benchmark": false,
+  "cudnn_deterministic": false,
+  "dataset": "pannuke",
+  "device": "cuda",
+  "early_stopped": true,
+  "early_stopping_metric": "dice",
+  "early_stopping_patience": 15,
+  "encoder": "swin",
+  "epochs_max": 100,
+  "epochs_run": 29,
+  "git_dirty": true,
+  "git_sha": "a3f2dcb49bd7eb73ba8f71113578767cdb6c6004",
+  "gpu_capability": "7.0",
+  "gpu_model": "Tesla V100-SXM2-32GB",
+  "loss": "bce_logits",
+  "n_test_patches": 2722,
+  "n_train_patches": 2656,
+  "n_val_patches": 2523,
+  "node": "d1012",
+  "params_total": 86805307,
+  "params_trainable": 86805307,
+  "peak_gpu_memory_bytes": 3841295872,
+  "resumed_from_epoch": null,
+  "run_id": "pannuke_swin_scratch_seed42",
+  "slurm_array_task_id": "2",
+  "slurm_job_id": "8914773",
+  "split_hash": "e7973abf6c3192b3e75f2f8df486695a282e2d1c3bb9f3ce9c2a8088a354d490",
+  "split_seed": 42,
+  "split_summary": {
+    "dataset": "pannuke",
+    "folds": {
+      "test": "fold3",
+      "train": "fold1",
+      "val": "fold2"
+    },
+    "num_examples": {
+      "fold1": 2656,
+      "fold2": 2523,
+      "fold3": 2722
+    },
+    "split_seed": null
+  },
+  "status": "complete",
+  "table": "1",
+  "test": {
+    "dice": 0.622519314289093,
+    "iou": 0.45192596316337585,
+    "protocol": "pooled patches",
+    "split": "fold3"
+  },
+  "train_loss_per_epoch": [
+    0.2541509539517294,
+    0.2566945719341916,
+    0.26584583107965537,
+    0.26110824498246954,
+    0.2599719786590122,
+    0.25769348536808806,
+    0.24834579206913351,
+    0.2545592484614217,
+    0.25065690642559385,
+    0.24360902212470412,
+    0.24061876346906982,
+    0.24207923125969358,
+    0.24301449213939977,
+    0.2450326726917761,
+    0.2557889969503305,
+    0.3755579053547727,
+    0.4341477841497904,
+    0.43146029392997903,
+    0.43329696294413994,
+    0.40634483269539223,
+    0.4312870051846447,
+    0.4413364174136196,
+    0.4335393527724657,
+    0.41497250287288645,
+    0.408580507948456,
+    0.42464766400047094,
+    0.41829473426543085,
+    0.42815243865711144,
+    0.4389866437897625
+  ],
+  "train_seed": 42,
+  "val_dice_per_epoch": [
+    0.14839860796928406,
+    0.44405481219291687,
+    0.04523208737373352,
+    0.3575802445411682,
+    0.2725643813610077,
+    0.3016526699066162,
+    0.09988417476415634,
+    0.12065233290195465,
+    0.04777330160140991,
+    0.09518804401159286,
+    0.14808160066604614,
+    0.27929407358169556,
+    0.5032393932342529,
+    0.6143050193786621,
+    0.27860957384109497,
+    0.27367159724235535,
+    0.27381277084350586,
+    0.07639465481042862,
+    0.2682875692844391,
+    0.058262430131435394,
+    0.019739575684070587,
+    0.0848664715886116,
+    0.07397537678480148,
+    0.32203859090805054,
+    0.2989240884780884,
+    0.06582065671682358,
+    0.11095090210437775,
+    0.0003549899556674063,
+    0.07487185299396515
+  ],
+  "val_iou_per_epoch": [
+    0.08014608919620514,
+    0.28539231419563293,
+    0.023139366880059242,
+    0.21771550178527832,
+    0.157785564661026,
+    0.17761541903018951,
+    0.052567411214113235,
+    0.0641990453004837,
+    0.024471186101436615,
+    0.04997241124510765,
+    0.07996119558811188,
+    0.16231365501880646,
+    0.33621904253959656,
+    0.44331908226013184,
+    0.16185146570205688,
+    0.15852811932563782,
+    0.1586228609085083,
+    0.039714306592941284,
+    0.15492616593837738,
+    0.030005306005477905,
+    0.009968171827495098,
+    0.04431360587477684,
+    0.038408320397138596,
+    0.19192251563072205,
+    0.1757264882326126,
+    0.03403027728199959,
+    0.058733727782964706,
+    0.0001775264972820878,
+    0.038891877979040146
+  ],
+  "versions": {
+    "cuda": "12.4",
+    "cudnn": 90100,
+    "numpy": "2.5.1",
+    "python": "3.13.9",
+    "timm": "1.0.28",
+    "torch": "2.6.0+cu124"
+  },
+  "wall_clock_seconds": 2250.150564432144,
+  "wall_clock_seconds_this_segment": 2250.151844263077
+}

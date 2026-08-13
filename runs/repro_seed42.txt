@@ -1,0 +1,32 @@
+REPRODUCTION CHECK FAILED — do not release the remaining seeds:
+  pannuke_swin_scratch: Dice delta +0.2351 exceeds +-0.015 (published 0.5903, new 0.8254)
+  pannuke_swin_pretrained: Dice delta +0.0224 exceeds +-0.015 (published 0.8017, new 0.8241)
+  structural claim broken: pannuke_swin_pretrained - pannuke_swin_scratch = -0.0014 (need >= +0.150)
+seed 42 | gpu {'Tesla V100-SXM2-32GB'} | 7 configs
+  split monuseg: e25a712880cd
+  split pannuke: e7973abf6c31
+
+tolerance: +-0.015 Dice
+
+config                      pub Dice  new Dice    delta   pub IoU  new IoU    delta  pub ep new ep  ok
+pannuke_vgg_bce               0.8513    0.8544  +0.0030    0.7442   0.7458  +0.0016      48     51  yes
+pannuke_vgg_dice              0.8506    0.8568  +0.0062    0.7432   0.7495  +0.0062      53     88  yes
+pannuke_resnet_bce            0.8486    0.8524  +0.0038    0.7405   0.7428  +0.0023      47     51  yes
+pannuke_swin_scratch          0.5903    0.8254  +0.2351    0.4423   0.7028  +0.2604      20     63  NO
+pannuke_swin_pretrained       0.8017    0.8241  +0.0224    0.6759   0.7008  +0.0249      92     88  NO
+monuseg_vgg_bce               0.7959    0.8045  +0.0086    0.6628   0.6743  +0.0115      80     70  yes
+monuseg_swin_pretrained       0.7499    0.7486  -0.0013    0.6037   0.6033  -0.0004     137    150  yes
+
+Dice delta: max |0.2351|, mean |0.0401|
+
+structural claims the paper's conclusions rest on:
+  [ok ] pannuke_vgg_bce - pannuke_swin_pretrained = +0.0303 (need >= +0.030)
+  [ok ] pannuke_resnet_bce - pannuke_swin_pretrained = +0.0283 (need >= +0.020)
+  [ok ] |pannuke_vgg_bce - pannuke_resnet_bce| = 0.0020 (need <= 0.010)
+  [ok ] |pannuke_vgg_bce - pannuke_vgg_dice| = 0.0024 (need <= 0.010)
+  [FAIL] pannuke_swin_pretrained - pannuke_swin_scratch = -0.0014 (need >= +0.150)
+  [ok ] monuseg_vgg_bce - monuseg_swin_pretrained = +0.0559 (need >= +0.030)
+  [ok ] Swin-scratch 0.8254 > Otsu 0.4819
+
+Wrote runs/repro_seed42.json
+

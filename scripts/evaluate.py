@@ -8,10 +8,13 @@ Usage:
 import argparse
 import json
 import logging
+import sys
 import numpy as np
 import torch
 from pathlib import Path
 from torch.utils.data import DataLoader
+
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from src.config import load_config
 from src.data.dataset import PanNukeDataset
@@ -33,7 +36,13 @@ def main():
     args = parser.parse_args()
 
     exp_dir = Path(args.experiment)
-    cfg = load_config(str(exp_dir / "config.yaml"))
+    # Sweep runs write config.resolved.yaml; the original single runs under
+    # outputs/ wrote config.yaml. Accept either so this script works on both.
+    cfg_path = next((p for p in (exp_dir / "config.yaml", exp_dir / "config.resolved.yaml")
+                     if p.exists()), None)
+    if cfg_path is None:
+        raise SystemExit(f"no config.yaml or config.resolved.yaml in {exp_dir}")
+    cfg = load_config(str(cfg_path))
 
     # Import the right model builder from train script
     # (keeps evaluate.py from duplicating build logic)

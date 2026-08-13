@@ -1,0 +1,35 @@
+GPU model (all runs): Tesla V100-SXM2-32GB
+split hash [pannuke]: e7973abf6c3192b3e75f2f8df486695a282e2d1c3bb9f3ce9c2a8088a354d490
+
+config                      n           test Dice           test IoU        epochs  best ep  wall/run
+pannuke_swin_pretrained_e150  5  0.8297+-0.0005  0.7090+-0.0008   120.0+- 8.7    105.0     3h55m
+
+total wall clock: 19h39m over 5 runs (3h55m mean)
+
+Published single-seed value vs multi-seed mean (delta in units of SD):
+
+Pairwise differences, |delta| / pooled SD (smallest first):
+
+==============================================================================
+% Table 1 body (tab:pannuke_results) — columns: @{}llcccr@{} — mean $\pm$ SD
+==============================================================================
+% no PanNuke runs aggregated
+
+==============================================================================
+% Table 2 body (tab:monuseg_results) — columns: @{}lccc@{} — mean $\pm$ SD
+==============================================================================
+% no MoNuSeg runs aggregated
+
+
+==============================================================================
+% Table 1 body (tab:pannuke_results) — columns: @{}llcccr@{} — mean (SD) — narrower, if the 6-column Table 1 overflows the LNCS text width
+==============================================================================
+% no PanNuke runs aggregated
+
+==============================================================================
+% Table 2 body (tab:monuseg_results) — columns: @{}lccc@{} — mean (SD) — narrower, if the 6-column Table 1 overflows the LNCS text width
+==============================================================================
+% no MoNuSeg runs aggregated
+
+
+Wrote runs_supp/summary.json

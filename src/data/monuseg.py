@@ -123,27 +123,23 @@ class MoNuSegDataset(Dataset):
 
         self._cache_dir = cache_dir
 
-    def image_level_split(self, val_fraction: float = 0.2, seed: int = 42):
-        """Split patches by image to avoid leakage. Returns (train_ds, val_ds)."""
-        counts_path = self._cache_dir / "image_patch_counts.npy"
-        counts = np.load(counts_path).tolist()
-        n_images = len(counts)
+    @property
+    def patch_counts(self) -> list:
+        """Patches per source image, in cache order."""
+        return np.load(self._cache_dir / "image_patch_counts.npy").tolist()
 
-        rng = np.random.default_rng(seed)
-        indices = rng.permutation(n_images).tolist()
-        n_val = max(1, int(n_images * val_fraction))
-        val_image_indices = set(indices[:n_val])
-        train_image_indices = set(indices[n_val:])
+    def image_level_split(self, val_fraction: float = 0.2, split_seed: int = 42):
+        """Split patches by image to avoid leakage. Returns (train_ds, val_ds).
 
-        patch_start = 0
-        train_patches, val_patches = [], []
-        for img_idx, count in enumerate(counts):
-            patch_range = list(range(patch_start, patch_start + count))
-            if img_idx in val_image_indices:
-                val_patches.extend(patch_range)
-            else:
-                train_patches.extend(patch_range)
-            patch_start += count
+        Driven by ``split_seed``, which is fixed across the whole study — see
+        ``src/splits.py``. It is deliberately not the training seed.
+        """
+        from src.splits import monuseg_image_level_split
+
+        counts = self.patch_counts
+        train_patches, val_patches, _ = monuseg_image_level_split(
+            counts, val_fraction, split_seed
+        )
 
         root = self._cache_dir.parent
         split = "train"

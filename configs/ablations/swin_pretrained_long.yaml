@@ -1,0 +1,21 @@
+# configs/ablations/swin_pretrained_long.yaml
+#
+# SUPPLEMENTARY ONLY — not a Table 1 configuration.
+#
+# Pretrained Swin on PanNuke with the cosine schedule extended to 150 epochs, to
+# check that the main result is not an artifact of the 100-epoch cap (which 2 of
+# 5 main seeds reached).
+#
+# This is NOT "the same run, trained longer". build_scheduler creates
+# CosineAnnealingLR(optimizer, cfg["training"]["epochs"]), so T_max IS the epoch
+# count: raising it from 100 to 150 stretches the whole cosine curve and changes
+# the learning rate at every epoch from the first. It is therefore a different LR
+# schedule and its numbers must never be mixed into Table 1.
+#
+# Applied on top of configs/ablations/swin_pretrained.yaml.
+
+experiment:
+  name: "unet_swin_pretrained_e150"
+
+training:
+  epochs: 150
