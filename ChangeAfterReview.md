@@ -41,14 +41,16 @@ saved alongside the corresponding original run, field for field.
 - The VGG-over-Swin result is unchanged in direction and slightly smaller in
   magnitude: 0.030 Dice on PanNuke (previously 0.049) and 0.036 on MoNuSeg
   (previously 0.046).
-- Section 4.1 and the Discussion revised accordingly.  **[PENDING — items A1/A2]**
+- Section 4.1 and the Discussion are revised accordingly.
 
 ## 3. Scope of the architectural attribution
 *(all three reviewers; author response point 3)*
 
 - The pretraining finding is scoped to **ImageNet** pretraining; the
   skip-connection resolution bottleneck is presented as the mechanism we believe
-  responsible rather than one we have isolated.  **[PENDING — items A1/A2]**
+  responsible rather than one we have isolated, naming the alternatives we have not
+  ruled out (a second Swin variant, a resolution-matched decoder, the differing
+  learning-rate schedule).
 - Future work now names **a resolution-matched Swin variant** (or a CNN with
   equally reduced skip resolution) and **pretraining matched to H&E rather than
   ImageNet** as the experiments that would settle the attribution.
@@ -129,8 +131,3 @@ saved alongside the corresponding original run, field for field.
   long sentences: several em-dash asides were promoted into main clauses or split
   into separate sentences, and one non-sequitur parenthetical was removed from
   Section 3.1.
-
----
-
-*Items marked **[PENDING]** are not yet complete in this draft and must be
-finished before submission.*

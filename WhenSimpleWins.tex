@@ -139,19 +139,10 @@ Table~\ref{tab:pannuke_results} summarizes results on PanNuke fold3; all learned
 paired difference is 0.002~Dice (95\% CI $[0.001, 0.002]$), reproducible across
 seeds but an order of magnitude below the ${\sim}0.005$ Dice we treat as
 practically meaningful, so we do not rank them.
-% TODO(camera-ready): the two sentences below are the ONE place the new data
-% changes the argument, not just the numbers. Measured at n=5: from-scratch Swin
-% 0.825 +- 0.001 vs pretrained 0.824 +- 0.001, paired difference +0.001 Dice
-% (95% CI [+0.001,+0.002]) in favour of FROM-SCRATCH. ImageNet pretraining
-% therefore yields no benefit here, and the published "+0.212 lift" came from a
-% single from-scratch run that diverged (its per-epoch val Dice oscillated
-% 0.278/0.531/0.003/0.023/0.585...). Note this STRENGTHENS the "not a matter of
-% weights" reading: if ImageNet weights change nothing measurable, the residual
-% ~0.03 gap to VGG cannot be about those weights. Rewrite in your own voice;
-% do not write "pretraining significantly hurts" -- 0.001 Dice is immaterial.
-Addressing Q1--Q2: Swin underperforms both CNN encoders by roughly 3~Dice points,
-with or without ImageNet pretraining. This 0.030 Dice gap (paired, 95\% CI
-$[0.029, 0.031]$) is an order of magnitude larger than the BCE-vs-Dice variation
+Addressing Q1--Q2: Swin underperforms both CNN encoders by roughly 3~Dice points.
+Pretraining moves it by 0.001~Dice (0.825 from scratch against 0.824
+pretrained), so ImageNet initialisation neither helps nor hurts here and the gap
+to VGG is not a matter of those weights. This 0.030 Dice gap (paired, 95\% CI $[0.029, 0.031]$) is an order of magnitude larger than the BCE-vs-Dice variation
 for a fixed encoder (0.002 Dice), indicating a genuine architectural effect
 rather than seed noise.
 
@@ -263,25 +254,17 @@ Qualitatively (Fig.~\ref{fig:monuseg_qualitative}), Swin's $4\times4$ tokenizati
 
 \noindent\textbf{Implications for resource-constrained deployment.} Every configuration we train fits a single 8GB consumer GPU: peak training memory was 3.6~GiB for VGG and 5.4~GiB for pretrained Swin-T, the heaviest we ran. A VGG U-Net (${\sim}34$M parameters) trains overnight with no external data, directly actionable for the edge-microscopy, veterinary, and non-H\&E settings~\cite{xiao2025review,neal2025artificial} that motivate this work.
 
-% TODO(camera-ready): REWRITE. At n=5 ImageNet pretraining closes NOTHING: from-
-% scratch 0.825 +- 0.001 vs pretrained 0.824 +- 0.001. The "+0.212 Dice" figure
-% came from one diverging from-scratch run. The skip-connection mechanism you
-% attribute the gap to is unaffected and is now supported more directly, since
-% the weights demonstrably make no difference. Gap to VGG is 0.030, not 0.049.
-\noindent\textbf{The role of pretraining.} Pretraining does not fail on Swin---it closes most of the Otsu-to-CNN gap ($+$0.212 Dice)---but cannot close the final 0.049 to VGG, which we attribute to the skip-connection resolution bottleneck (Section~\ref{sec:intuition}): a property of the architecture, not the weights. This predicts that even domain-matched pretraining (e.g., UNI~\cite{chen2024uni}) would narrow but not close the gap---a falsifiable target for future work.
+\noindent\textbf{The role of pretraining.} ImageNet pretraining leaves Swin's
+accuracy essentially unchanged (0.824 against 0.825 from scratch), so the
+0.030~Dice gap to VGG is not attributable to those weights. We believe the
+skip-connection resolution bottleneck of Section~\ref{sec:intuition} is
+responsible but have not isolated it: a second Swin variant, a resolution-matched
+decoder, or the differing schedule could each contribute. Whether H\&E-matched
+pretraining (e.g., UNI~\cite{chen2024uni}) closes the gap would discriminate
+between them.
 
 \subsection{Limitations}
 
-% TODO(camera-ready): REWRITE the variance sentence -- it is now false and it is
-% the reviewers' central objection. Replacement facts: every configuration in
-% Tables 1 and 2 was re-run over 5 training seeds on one GPU model with one fixed
-% split; mean +- SD reported; comparisons paired per seed with 95% CIs; all 11
-% paired CIs on test Dice exclude zero. Remaining honest limitations: this
-% measures TRAINING-SEED variance only, on a single fixed split, so it says
-% nothing about split or dataset variance; n=5 does not support Wilcoxon
-% (its two-sided floor is p=0.0625 at n=5); and pretrained Swin reached its
-% 100-epoch cap in 2 of 5 seeds -- a 150-epoch cosine schedule lifts it to
-% 0.830 +- 0.001, still 0.025 below VGG.
 Several limitations bound these conclusions. Tables~\ref{tab:pannuke_results} and~\ref{tab:monuseg_results} report mean and standard deviation over five training seeds on one fixed split, and every difference we claim has a paired 95\% confidence interval excluding zero; this bounds training-seed variance, not split variance, which with 37 MoNuSeg images is plausibly larger. We give intervals rather than non-parametric tests because at $n{=}5$ a two-sided signed-rank $p$ cannot fall below 0.0625. We did not sweep learning rates, so cannot quantify the comparison's sensitivity to them; from-scratch Swin's instability at $10^{-2}$ suggests it is not negligible. Pretrained Swin reached its 100-epoch cap in two of five seeds, so its schedule may bound it, though those two seeds scored no lower than the three that stopped on patience. We study only binary segmentation, not instance separation of touching nuclei; the MedT comparison is uncontrolled in training-set size (37 vs.\ 30) and protocol ($256\times256$ tiles vs.\ one $512\times512$ pass); and all data are H\&E, leaving the non-H\&E stains (IHC, fluorescence) that most motivate this work untested.
 
 %% ============================================================================
