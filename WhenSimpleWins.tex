@@ -251,7 +251,7 @@ Swin-T U-Net (pretrained) & 86.8M & 18.4 & 618.8 \\
 \end{tabular}
 \end{table}
 
-Swin uses roughly $2.6\times$ the memory and $1.8\times$ the latency of VGG for no accuracy gain; pathology foundation models in the 300M--1B range~\cite{chen2024uni,vorontsov2024virchow} need about an order of magnitude more inference memory and are typically deployed via linear probing on cached embeddings~\cite{tizhoosh2025why,campanella2025clinical}. A VGG U-Net fits comfortably on a consumer laptop GPU; even Swin-T already costs meaningfully more.
+Swin uses roughly $2.3\times$ the memory and $2.6\times$ the latency of VGG for no accuracy gain. A VGG U-Net fits comfortably on a consumer laptop GPU; even Swin-T already costs meaningfully more.
 
 \subsection{Qualitative Analysis}
 
@@ -261,7 +261,7 @@ Qualitatively (Fig.~\ref{fig:monuseg_qualitative}), Swin's $4\times4$ tokenizati
 \section{Discussion}
 %% ============================================================================
 
-\noindent\textbf{Implications for resource-constrained deployment.} Foundation models are memory-hungry and, depending on hardware, may be unusable; they are typically limited to linear probing rather than full fine-tuning~\cite{tizhoosh2025why}. A VGG U-Net (${\sim}34$M parameters) instead trains overnight on a single 8GB consumer GPU with no external data---directly actionable for the edge-microscopy, veterinary, and non-H\&E settings~\cite{xiao2025review,neal2025artificial} that motivate this work.
+\noindent\textbf{Implications for resource-constrained deployment.} Every configuration we train fits a single 8GB consumer GPU: peak training memory was 3.6~GiB for VGG and 5.4~GiB for pretrained Swin-T, the heaviest we ran. A VGG U-Net (${\sim}34$M parameters) trains overnight with no external data, directly actionable for the edge-microscopy, veterinary, and non-H\&E settings~\cite{xiao2025review,neal2025artificial} that motivate this work.
 
 % TODO(camera-ready): REWRITE. At n=5 ImageNet pretraining closes NOTHING: from-
 % scratch 0.825 +- 0.001 vs pretrained 0.824 +- 0.001. The "+0.212 Dice" figure
