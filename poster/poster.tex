@@ -100,7 +100,7 @@
   \begin{block}{Motivation}
     Pathology foundation models (UNI, 307M parameters; Virchow2, 632M) ease the
     labelled-data shortage, but they are hard to fine-tune, questioned under cross-site
-    shift, and transfer poorly beyond H\&E. Edge microscopy, veterinary and rare-disease
+    shift, and transfer poorly beyond H\&E (haematoxylin and eosin) staining. Edge microscopy, veterinary and rare-disease
     labs often have \textbf{only tens of annotated slides and a single GPU}.
 
     \medskip
@@ -128,7 +128,9 @@
     \end{center}
     The decoder, data pipeline, augmentation, optimiser and evaluation are shared, and
     every encoder returns four feature maps through one interface. Results are means over
-    \textbf{5 training seeds} on one V100, with paired 95\% CIs.
+    \textbf{5 training seeds} on one V100. Loss is binary cross-entropy (BCE) unless
+    noted; metrics are Dice and IoU (intersection over union). 95\% confidence intervals
+    (CIs) are $t$-intervals on per-seed paired differences (5 shared seeds, 4 d.f.).
 
     \medskip
     \begin{center}
@@ -246,6 +248,8 @@
       \end{axis}
     \end{tikzpicture}
     \end{center}
+    {\small All bars use BCE loss so that only the encoder differs. The Dice-loss VGG run
+    is in the full table.\par}
     \begin{itemize}
       \item \textbf{VGG vs ResNet:} 0.002 Dice (CI $[0.001, 0.002]$), below the 0.005 we
         treat as meaningful, so we don't rank them. Residual shortcuts don't help at four
@@ -280,7 +284,8 @@
     VGG beats pretrained Swin by \textbf{0.036 Dice} (CI $[0.021, 0.052]$), a gap
     similar to the one on PanNuke.
 
-    {\small $^\dagger$A cross-paper anchor rather than a controlled comparison:
+    {\small $^\dagger$MedT (Medical Transformer; Valanarasu et al., 2021) is a
+    transformer designed for small medical datasets. A cross-paper anchor rather than a controlled comparison:
     MedT used 30 training images and $512^2$ input. We read it only as VGG
     \emph{reaching} MedT's level.\par}
 
