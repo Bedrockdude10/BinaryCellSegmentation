@@ -24,6 +24,7 @@
 \usepackage{unicode-math}
 \setmathfont{Fira Math}
 
+\setbeamerfont{caption}{size=\normalsize}
 \graphicspath{{../figures/}{./}}
 
 \definecolor{vggC}{RGB}{39, 60, 117}
@@ -161,11 +162,11 @@
       \midrule
       Otsu (classical) & --- & 0.482 & 0.349 & --- & 0 \\
       \midrule
-      Swin-T (scratch) & BCE & 0.825 {\footnotesize(.001)} & 0.703 {\footnotesize(.002)} & 69.0 {\footnotesize(9.4)} & 86.8M \\
-      Swin-T (pretrained) & BCE & 0.824 {\footnotesize(.001)} & 0.701 {\footnotesize(.001)} & 96.2 {\footnotesize(5.0)} & 86.8M \\
-      ResNet & BCE & 0.853 {\footnotesize(.000)} & 0.743 {\footnotesize(.001)} & 49.8 {\footnotesize(3.8)} & 37.5M \\
-      VGG & Dice & \textbf{0.856} {\footnotesize(.001)} & \textbf{0.748} {\footnotesize(.001)} & 84.8 {\footnotesize(17.5)} & 34.0M \\
-      VGG & BCE & 0.854 {\footnotesize(.000)} & 0.746 {\footnotesize(.000)} & 51.8 {\footnotesize(2.6)} & 34.0M \\
+      Swin-T (scratch) & BCE & 0.825 {\small(.001)} & 0.703 {\small(.002)} & 69.0 {\small(9.4)} & 86.8M \\
+      Swin-T (pretrained) & BCE & 0.824 {\small(.001)} & 0.701 {\small(.001)} & 96.2 {\small(5.0)} & 86.8M \\
+      ResNet & BCE & 0.853 {\small(.000)} & 0.743 {\small(.001)} & 49.8 {\small(3.8)} & 37.5M \\
+      VGG & Dice & \textbf{0.856} {\small(.001)} & \textbf{0.748} {\small(.001)} & 84.8 {\small(17.5)} & 34.0M \\
+      VGG & BCE & 0.854 {\small(.000)} & 0.746 {\small(.000)} & 51.8 {\small(2.6)} & 34.0M \\
       \bottomrule
     \end{tabular}
     \end{center}
@@ -255,15 +256,15 @@
       \textbf{Model} & \textbf{Dice} & \textbf{IoU} & \textbf{Params} \\
       \midrule
       MedT (published, 30 images)$^\dagger$ & 0.796 & 0.662 & 1.4M \\
-      Swin-T pretrained (ours) & 0.758 {\footnotesize(.007)} & 0.613 {\footnotesize(.008)} & 86.8M \\
-      \textbf{VGG, from scratch (ours)} & \textbf{0.794} {\footnotesize(.011)} & \textbf{0.660} {\footnotesize(.015)} & 34.0M \\
+      Swin-T pretrained (ours) & 0.758 {\small(.007)} & 0.613 {\small(.008)} & 86.8M \\
+      \textbf{VGG, from scratch (ours)} & \textbf{0.794} {\small(.011)} & \textbf{0.660} {\small(.015)} & 34.0M \\
       \bottomrule
     \end{tabular}
     \end{center}
     VGG beats pretrained Swin by \textbf{0.036 Dice} (CI $[0.021, 0.052]$), a gap
     similar to the one on PanNuke.
 
-    {\footnotesize $^\dagger$A cross-paper anchor rather than a controlled comparison:
+    {\small $^\dagger$A cross-paper anchor rather than a controlled comparison:
     MedT used 30 training images and $512^2$ input. We read it only as VGG
     \emph{reaching} MedT's level.\par}
 
