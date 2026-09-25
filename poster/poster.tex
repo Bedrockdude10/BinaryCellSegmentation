@@ -55,10 +55,9 @@
   EMERGE Workshop @ MICCAI 2026 --- Paper 0018 \hfill
   \href{mailto:rollo.l@northeastern.edu}{rollo.l@northeastern.edu}}
 
-\newcommand{\bignum}[2]{%
-  \begin{minipage}[t]{0.32\linewidth}\centering
-    {\color{vggC}\bfseries\fontsize{100}{110}\selectfont #1\par}
-    \vspace{0.4ex}{\small #2\par}
+\newcommand{\factcell}[3]{%
+  \begin{minipage}[t]{0.23\linewidth}\centering
+    {\small\color{vggC}\bfseries #1\par}\vspace{0.3ex}{\normalsize #2\par}
   \end{minipage}}
 
 % ====================
@@ -74,13 +73,16 @@
 \begin{column}{\dimexpr 2\colwidth + \sepwidth\relax}
   \begin{alertblock}{Take-home message}
     \centering
-    {\Large You don't need a foundation model or a GPU cluster to segment nuclei well.
-    A plain \textbf{VGG U-Net} trained from scratch matches ResNet and beats a pretrained
-    \textbf{Swin Transformer} on both benchmarks.\par}
+    {\large In a controlled comparison with only the encoder varied, a VGG U-Net trained
+    from scratch matched ResNet and outperformed an ImageNet-pretrained Swin-T on PanNuke
+    and MoNuSeg, at lower inference latency and memory.\par}
     \vspace{1.2ex}
-    \bignum{37}{annotated slides are enough to reach\\published MedT-level Dice on MoNuSeg}\hfill
-    \bignum{8\,GB}{consumer GPU is enough to train it\\(3.6\,GiB peak for VGG)}\hfill
-    \bignum{Overnight}{training from scratch, with no\\external data or pretrained weights}
+    \begin{tabular}{@{}cccc@{}}
+      \factcell{Training data}{37 MoNuSeg slides}{} &
+      \factcell{Hardware}{one GPU; fits in 8\,GB}{} &
+      \factcell{Pretraining}{none (VGG)}{} &
+      \factcell{Inference}{7.1\,ms vs 18.4\,ms (Swin-T)}{}
+    \end{tabular}
     \vspace{0.6ex}
   \end{alertblock}
 \end{column}
