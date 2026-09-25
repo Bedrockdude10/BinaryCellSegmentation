@@ -10,7 +10,7 @@
 
 
 
-\usepackage[size=custom,width=84.1,height=118.9,scale=1.15]{beamerposter}
+\usepackage[size=custom,width=84.1,height=118.9,scale=1.0]{beamerposter}
 \usetheme{gemini}
 \usecolortheme{gemini}
 \usepackage{graphicx}
@@ -24,7 +24,7 @@
 \usepackage{unicode-math}
 \setmathfont{Fira Math}
 
-\graphicspath{{../figures/}}
+\graphicspath{{../figures/}{./}}
 
 \definecolor{vggC}{RGB}{39, 60, 117}
 \definecolor{resC}{RGB}{110, 150, 190}
@@ -173,6 +173,13 @@
     \end{itemize}
   \end{block}
 
+
+  \begin{block}{Next steps}
+    A resolution-matched Swin to separate tokenisation from encoder family;
+    H\&E-matched pretraining (e.g.\ UNI); the data scale at which Swin catches up;
+    compact encoders (MobileNet, ConvNeXt-T); non-H\&E stains.
+  \end{block}
+
 \end{column}
 
 \separatorcolumn
@@ -214,6 +221,14 @@
         the ImageNet weights.
       \item \textbf{BCE vs Dice loss:} 0.854 vs 0.856, which is immaterial.
     \end{itemize}
+    \begin{figure}
+      \centering
+      \includegraphics[width=\linewidth]{pannuke_errors_crop.png}
+      \caption{Two PanNuke test patches, one seed. The lower patch was picked because
+      the gap is large (VGG 0.797, pretrained Swin 0.694); in the upper one ResNet and
+      VGG+Dice edge out VGG+BCE. Swin's errors are mostly false-positive blobs on
+      background tissue.}
+    \end{figure}
   \end{block}
 
   \begin{block}{MoNuSeg: 37 training images}
@@ -237,10 +252,10 @@
 
     \begin{figure}
       \centering
-      \includegraphics[width=\linewidth]{monuseg_comparison_row1_seed42_solid.png}
+      \includegraphics[width=\linewidth]{monuseg_comparison_row1_seed42_errormap.png}
       \caption{A dense MoNuSeg test region, chosen for how dense it is rather than for
-      the size of the gap. Swin merges neighbouring nuclei across narrow gaps that VGG
-      keeps separate.}
+      the size of the gap (0.010 Dice here vs 0.036 on average). Swin merges
+      neighbouring nuclei across narrow gaps that VGG keeps separate.}
     \end{figure}
   \end{block}
 
@@ -260,11 +275,6 @@
     8\,GB (peak training memory: 3.6\,GiB for VGG, 5.4\,GiB for Swin).
   \end{block}
 
-  \begin{block}{Next steps}
-    A resolution-matched Swin to separate tokenisation from encoder family;
-    H\&E-matched pretraining (e.g.\ UNI); the data scale at which Swin catches up;
-    compact encoders (MobileNet, ConvNeXt-T); non-H\&E stains.
-  \end{block}
 
 \end{column}
 
