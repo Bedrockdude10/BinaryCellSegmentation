@@ -20,6 +20,7 @@
 \usepackage{pgfplots}
 \pgfplotsset{compat=1.18}
 \usepackage{anyfontsize}
+\usepackage[nolinks]{qrcode}
 \usefonttheme{professionalfonts}
 \usepackage{unicode-math}
 \setmathfont{Fira Math}
@@ -198,6 +199,21 @@
 
 
 
+  \begin{block}{Next steps and code}
+    \begin{minipage}[c]{0.74\linewidth}
+    A resolution-matched Swin to separate tokenisation from encoder family;
+    H\&E-matched pretraining (e.g.\ UNI); the data scale at which Swin catches up;
+    compact encoders (MobileNet, ConvNeXt-T); non-H\&E stains.
+
+      \medskip
+      Code, configs and trained checkpoints:\\
+      \textbf{github.com/Bedrockdude10/BinaryCellSegmentation}
+    \end{minipage}\hfill
+    \begin{minipage}[c]{0.22\linewidth}\centering
+      \qrcode[height=5.5cm]{https://github.com/Bedrockdude10/BinaryCellSegmentation}
+    \end{minipage}
+  \end{block}
+
 \end{column}
 
 \separatorcolumn
@@ -294,11 +310,6 @@
   \end{block}
 
 
-  \begin{block}{Next steps}
-    A resolution-matched Swin to separate tokenisation from encoder family;
-    H\&E-matched pretraining (e.g.\ UNI); the data scale at which Swin catches up;
-    compact encoders (MobileNet, ConvNeXt-T); non-H\&E stains.
-  \end{block}
 
 \end{column}
 
